@@ -1,0 +1,32 @@
+<!-- templates/core/pagination.html -->
+
+<!-- your_app/templates/your_app/pagination.html -->
+
+{% load static %}
+{% load i18n %}
+
+{% for product in products %}
+
+{% if paginator.num_pages > 1 %}
+  <div class="pagination">
+    <span class="step-links">
+      {% if current_page.has_previous %}
+        <a href="?page=1">{% trans '« first' %}</a>
+        <a href="?page={{ current_page.previous_page_number }}">{{ _('previous') }}</a>
+      {% endif %}
+
+      <span class="current">
+        {% blocktrans %}
+          Page {{ current_page.number }} of {{ paginator.num_pages }}.
+        {% endblocktrans %}
+      </span>
+
+      {% if current_page.has_next %}
+        <a href="?page={{ current_page.next_page_number }}">{{ _('next') }}</a>
+        <a href="?page={{ paginator.num_pages }}">{{ _('last »') }}</a>
+      {% endif %}
+    </span>
+  </div>
+{% endif %}
+
+{% endfor %}

@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0 text-white">Products by Tag: {{ tag.name }}</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for product in products %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ product.title }}</h5>
+                                            <p class="card-text">${{ product.price|floatformat:2 }}</p>
+                                            <a href="{% url 'core:product-detail' product.pid %}" class="btn btn-primary btn-sm">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'core/pagination.html' %}
+{% endblock %}

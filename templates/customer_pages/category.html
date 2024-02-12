@@ -1,0 +1,106 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Kakuzi plc - {{ category.title }}{% endblock %}
+
+{% block content %}
+    <div class="hero-wrap hero-bread" style="background-image: url('{{ STATIC_URL }}static/images/bg_1.jpg');">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><a href="{% url 'core:index' %}">Home</a> <span class="mr-2">/</span> <a href="{% url 'core:shop' %}">Products</a></p>
+                    <h1 class="mb-0 bread">{{ category.title }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="categories p-4 bg-light border-radius-8">
+                    <h3 class="mb-3 text-dark">Categories</h3>
+                    
+                    {% if categories %}
+                        <ul class="list-unstyled">
+                            {% for cat in categories %}
+                                <li><a href="{% url 'core:category-list' cat.cid %}" class="text-dark">{{ cat.title|title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="container mt-5">
+                    <h3 class="text-center">Price Range Slider</h3>
+                    <div class="slider d-flex justify-content-center">
+                        <form method="get" action="{% url 'core:category-price-range-results' category.cid %}">
+                            <label for="priceRange">Select Price Range:</label>
+                            <input type="range" min="0" max="200" value="100" id="priceRange" name="price_range">
+                            <p id="rangeValue" class="ml-2">100</p> <!-- Added ml-2 for a bit of margin to the left -->
+                            <button type="submit" class="btn btn-primary mt-3">Apply Filter</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <script>
+                    // Add this script to update the range value display
+                    document.getElementById('priceRange').addEventListener('input', function() {
+                        document.getElementById('rangeValue').innerText = this.value;
+                    });
+                </script>
+                
+                <style>
+                    /* Add your custom styling here */
+                    /* You can customize the appearance of the range input and output */
+                    #priceOutput {
+                        display: block;
+                        margin-top: 10px;
+                    }
+                </style>
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    {% for product in products %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="product card h-100">
+                                <a href="#" class="img-prod d-block overflow-hidden">
+                                    <img class="card-img-top img-fluid fixed-image-size" src="{{ product.image.url }}" alt="{{ product.title }}">
+                                </a>
+                                {% if product.discount_percentage %}
+                                    <span class="status">{{ product.discount_percentage }}% Off</span>
+                                {% endif %}
+                                <div class="card-body text-center">
+                                    <h3 class="card-title title-text"><a href="#" class="text-dark">{{ product.title|title }}</a></h3>
+                                    <p class="card-text">{{ product.description|truncatechars:30|safe  }}</p>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="pricing">
+                                            {% if product.discount_price %}
+                                                <p class="price">
+                                                    <span class="mr-2 price-dc">KSH {{ product.original_price }}</span>
+                                                    <span class="price-sale">KSH {{ product.discount_price }}</span>
+                                                </p>
+                                            {% else %}
+                                                <p class="price">KSH {{ product.price }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url 'core:product-detail' product.pid %}" class="btn btn-primary">Add to Cart</a>
+                                    {% else %}
+                                        <a href="{% url 'userauths:login' %}" class="btn btn-primary">Log in to Add to Cart</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include 'core/pagination.html' %}
+    <style>
+        .fixed-image-size {
+            width: 100%;
+            height: 250px; /* Adjust this value to set a fixed height for the images */
+            object-fit: cover;
+        }
+    </style>
+{% endblock %}

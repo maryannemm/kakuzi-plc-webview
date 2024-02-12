@@ -1,0 +1,154 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+{% load mathfilters %}
+<!-- cart.html 
+Cart Count: {{ request.session.cart_count }}
+
+Session Data:
+<ul>
+  {% for key, value in request.session.items %}
+    <li>{{ key }}: {{ value }}</li>
+  {% endfor %}
+</ul>-->
+
+
+
+</ul>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">My Cart</h1>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-primary">
+                        <tr class="text-center">
+                            <th style="width: 10%;">Image</th> <!-- Adjusted width for the image column -->
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Actions</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cart_item in cart_order_items %}
+                        <tr class="text-center">
+                            <td class="align-middle"><img src="{{ cart_item.image }}" class="img-fluid" alt="{{ cart_item.title }}" style="width: 100%; max-width: 100px;"></td> <!-- Adjusted width for the image -->
+                            <td class="align-middle">{{ cart_item.title }}</td>
+                            <td class="align-middle">Ksh {{ cart_item.price|floatformat:2 }}</td>
+                            <td class="align-middle">
+                                <input type="number" id="quantity-{{ cart_item.pid }}" class="form-control" value="{{ cart_item.quantity }}" min="1" max="100">
+                            </td>
+                            <td class="align-middle">
+                                <button type="button" class="btn btn-primary btn-sm update-btn" data-pid="{{ cart_item.pid }}">Update</button>
+                                <button type="button" class="btn btn-danger btn-sm delete-btn ml-2" data-pid="{{ cart_item.pid }}"><span class="ion-ios-close"></span></button>
+                            </td>
+                            <td class="align-middle">Ksh <span id="total-{{ cart_item.pid }}">{{ cart_item.price|floatformat:2|mul:cart_item.quantity }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-end mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-3">Cart Totals</h3>
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal</span>
+                        <span>Ksh {{ total_price|floatformat:2 }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span>Delivery</span>
+                        <span>Ksh 200.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span>Total</span>
+                        <span>Ksh {{ total_price|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'core:checkout' request.user.username %}" class="btn btn-primary btn-block py-3">Proceed to Checkout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Update Button Click Event
+        // Update Button Click Event
+        $(".update-btn").click(function() {
+            var pid = $(this).data("pid");
+            var quantity = $("#quantity-" + pid).val(); // Get the quantity from the input field
+            $.ajax({
+                type: "POST",
+                url: "{% url 'core:update_cart' request.user.username %}",
+                data: {
+                    pid: pid,
+                    quantity: quantity
+                },
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
+                },
+                success: function(data) {
+                    // Update the cart count in the header
+                    var newCount = data.total_items;
+                    updateCartCount(newCount);
+
+                    // Display a success message
+                    alert('Cart updated successfully!');
+
+                    // Reload the page to reflect the changes in the cart
+                    location.reload();
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    console.log("Error:", errorThrown);
+                }
+            });
+        });
+
+
+        // Delete Button Click Event
+        $(".delete-btn").click(function() {
+            var pid = $(this).data("pid");
+            window.location.href = "{% url 'core:delete_from_cart' request.user.username %}?pid=" + pid;
+        });
+
+        // Retain the quantity value after page reload
+        $("input[type='number']").on('input', function() {
+            $(this).attr('value', $(this).val());
+        });
+
+        // Function to get CSRF cookie value
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Function to update cart count in the header
+        // Update cart count dynamically using JavaScript
+    function updateCartCount(count) {
+        document.getElementById('cartItemCount').textContent = count;
+    }
+        
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+<!-- core/price-range-slider-results.html -->
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container mt-5 mx-auto"> <!-- Add mx-auto class for centering -->
+        <h1 class="mb-4">Price Range Results</h1>
+
+        <p>Selected Price Range: {{ min_price }} - {{ max_price }}</p>
+
+        <div class="row">
+            {% if filtered_products %}
+                {% for product in filtered_products %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }} Image">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.title }}</h5>
+                                <p class="card-text">{{ product.description|safe }}</p>
+                                <p class="card-text">Price: Ksh {{ product.price }}</p>
+                                <a href="{% url 'core:product-detail' pid=product.pid %}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No products found in the selected price range.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

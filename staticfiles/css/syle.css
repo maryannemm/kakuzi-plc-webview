@@ -1,0 +1,17 @@
+/* styles.css */
+
+.slider-item {
+    /* Other styles for slider-item */
+    background-size: cover;
+    background-position: center;
+  }
+  
+  /* Use Django template tag to dynamically generate the background image URL */
+  .slider-item-1 {
+    background-image: url("{% static 'images/bg_1.jpg' %}");
+  }
+  
+  .slider-item-2 {
+    background-image: url("{% static 'images/bg_2.jpg' %}");
+  }
+  

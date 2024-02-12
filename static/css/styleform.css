@@ -1,0 +1,64 @@
+/* styleform.css */
+
+/* Add your styling rules here */
+form {
+    max-width: 400px;
+    margin: 20px auto 0; 
+    padding-top: 20px; 
+    color: grey; /* Add padding at the top */
+    background-color: #f2f2f2; /* Set background color for the form */
+    border-radius: 10px; /* Add border radius */
+    padding: 80px; /* Add padding inside the form */
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+form label {
+    margin-bottom: 5px;
+}
+
+form input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #8c8989;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #4CAF50; /* Green background color */
+    color: white; /* White text color */
+    padding: 10px 15px; /* Add some padding */
+    border: none; /* Remove borders */
+    border-radius: 5px; /* Add border radius */
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+button:hover {
+    background-color: #45a049; /* Dark green background color on hover */
+}
+
+.messages {
+    list-style: none;
+    padding: 10px; /* Add padding */
+    border-radius: 5px; /* Add border radius */
+    margin-top: 10px;
+    background-color:rgb(134, 243, 134);
+}
+
+.messages li {
+    margin-bottom: 10px;
+}
+
+.error-message {
+    background-color: #ffe1e1; /* Light red background color */
+    padding: 10px; /* Add padding */
+    border-radius: 5px; /* Add border radius */
+    margin-top: 10px;
+    color: #ff0000; /* Red text color */
+}
+
+/* Add more styling rules as needed */

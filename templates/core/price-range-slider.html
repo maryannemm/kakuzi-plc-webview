@@ -1,0 +1,28 @@
+<!-- price_range_slider.html -->
+<div class="container mt-5">
+    <h3 class="text-center">Price Range Slider</h3>
+    <div class="slider d-flex justify-content-center">
+        <form method="get" action="{% url 'core:price-range-results' %}">
+            <label for="priceRange">Select Price Range:</label>
+            <input type="range" min="0" max="200" value="100" id="priceRange" name="price_range">
+            <p id="rangeValue" class="ml-2">100</p> <!-- Added ml-2 for a bit of margin to the left -->
+            <button type="submit" class="btn btn-primary mt-3">Apply Filter</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Add this script to update the range value display
+    document.getElementById('priceRange').addEventListener('input', function() {
+        document.getElementById('rangeValue').innerText = this.value;
+    });
+</script>
+
+<style>
+    /* Add your custom styling here */
+    /* You can customize the appearance of the range input and output */
+    #priceOutput {
+        display: block;
+        margin-top: 10px;
+    }
+</style>

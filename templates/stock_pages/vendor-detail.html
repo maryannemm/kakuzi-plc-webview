@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title">{{ vendor.title }}</h2>
+        <img src="{{ vendor.image.url }}" class="img-fluid mb-4" alt="{{ vendor.title }}">
+        
+        <p class="card-text">{{ vendor.description|safe  }}</p>
+        <p class="card-text"><strong>Phone:</strong> {{ vendor.phone }}</p>
+        <p class="card-text"><strong>Email:</strong> {{ vendor.business_email }}</p>
+        <p class="card-text"><strong>Address:</strong> {{ vendor.address }}</p>
+        <p class="card-text"><strong>City:</strong> {{ vendor.city }}</p>
+        <p class="card-text"><strong>Verified:</strong> {% if vendor.verified %}Yes{% else %}No{% endif %}</p>
+        <!-- Add more fields as needed -->
+
+        <!-- Optional: Add a button to go back to the vendor list -->
+        <a href="{% url 'core:vendor-list' %}" class="btn btn-secondary">Back to Vendor List</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

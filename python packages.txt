@@ -1,0 +1,7 @@
+pip install -U django-jazzmin
+pip install django-shortuuidfield
+pip install "django-phonenumber-field[phonenumbers]"
+pip install django-taggit
+pip install django-ckeditor
+pip install django-crispy-forms
+pip install django-mathfilters
