@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="hero-wrap hero-bread">
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+            <div class="col-md-9 ftco-animate text-center">
+                <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Payment Error</span></p>
+                <h1 class="mb-0 bread">Payment Error</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Payment Error!</h4>
+                    <p>There was an error processing your payment. Please try again later or contact support for assistance.</p>
+                    <hr>
+                    <p class="mb-0">You may <a href="{% url 'core:cart' %}">return to your cart</a> to review your items.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

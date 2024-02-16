@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="hero-wrap hero-bread" style="background-image: url('images/bg_1.jpg');">
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+            <div class="col-md-9 ftco-animate text-center">
+                <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Payment Cancelled</span></p>
+                <h1 class="mb-0 bread">Payment Cancelled</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Payment Cancelled!</h4>
+                    <p>Your payment was cancelled. If you would like to continue with your purchase, please proceed to the <a href="{% url 'core:cart' %}">cart</a> to review your items.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

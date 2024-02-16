@@ -26,6 +26,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(CartOrder)
 class CartOrderAdmin(admin.ModelAdmin):
+    list_editable=['payment_status', 'order_status']
     list_display = ('user', 'price', 'payment_status', 'order_date', 'order_status')
 
 @admin.register(CartOrderItems)

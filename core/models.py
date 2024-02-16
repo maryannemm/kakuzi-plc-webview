@@ -13,6 +13,7 @@ STATUS_CHOICES = (
     ("pending", "Pending"),
     ("shipped", "Shipped"),
     ("completed", "Completed"),
+  
 )
 
 STATUS = (
@@ -32,10 +33,10 @@ RATINGS = (
 
 
 def user_directory_path(instance, filename):
-    return 'user_{0}/{1}'.format(instance.user.id, filename)  # Fix the formatting
+    return 'user_{0}/{1}'.format(instance.user.id, filename)  
 
 class Category(models.Model):
-    cid = ShortUUIDField(unique=True, max_length=30, prefix='cat', alphabet='abcdefghij12345')  # Fix the spelling of 'unique'
+    cid = ShortUUIDField(unique=True, max_length=30, prefix='cat', alphabet='abcdefghij12345') 
     title = models.CharField(max_length=100, default='fruit')
     image = models.ImageField(upload_to='category', default='category.jpg')
 
@@ -43,13 +44,13 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
     def category_image(self):
-        return mark_safe('<img src="%s" width="50" />' % self.image.url)  # Fix the formatting
+        return mark_safe('<img src="%s" width="50" />' % self.image.url)  
 
     def __str__(self):
         return self.title
 
 class Supplier(models.Model):
-    vid = ShortUUIDField(unique=True, max_length=31, prefix='supplier', alphabet='abcdefghij12345')  # Update the prefix
+    vid = ShortUUIDField(unique=True, max_length=31, prefix='supplier', alphabet='abcdefghij12345') 
     title = models.CharField(max_length=100, default='farmer business')
     image = models.ImageField(upload_to=user_directory_path, default='farmer.jpg')
     address = models.CharField(max_length=100, default='123, main street, nairobi', unique=True)
@@ -138,7 +139,7 @@ class CartOrder(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=10.0)
     payment_status=models.BooleanField(default=False)
     order_date=models.DateTimeField(auto_now_add=True)
-    order_status = models.CharField(choices=STATUS_CHOICES, max_length=30, default='processing')
+    order_status = models.CharField(choices=STATUS_CHOICES, max_length=30, default='pending')
 
     class Meta:
         verbose_name_plural='Cart Orders'
@@ -155,6 +156,9 @@ class CartOrderItems(models.Model):
 
     class Meta:
         verbose_name_plural='Cart Order Items'
+
+    def category_image(self):
+        return mark_safe('<img src="%s" width="50" />' % self.image.url)  
     
     def order_image(self):
         return mark_safe('<img src="/media/%s" width="50" />' % self.image.url)

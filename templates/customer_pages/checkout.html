@@ -2,6 +2,7 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
+{% load mathfilters %}
     <div class="hero-wrap hero-bread" style="background-image: url('images/bg_1.jpg');">
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
@@ -106,60 +107,68 @@
 	          			<h3 class="billing-heading mb-4">Cart Total</h3>
 	          			<p class="d-flex">
 		    						<span>Subtotal</span>
-		    						<span>$20.60</span>
+		    						<span>Ksh {{checkamount|floatformat:2|sub:200}}</span>
 		    					</p>
 		    					<p class="d-flex">
 		    						<span>Delivery</span>
-		    						<span>$0.00</span>
-		    					</p>
-		    					<p class="d-flex">
-		    						<span>Discount</span>
-		    						<span>$3.00</span>
+		    						<span>Ksh 200</span>
 		    					</p>
 		    					<hr>
 		    					<p class="d-flex total-price">
 		    						<span>Total</span>
-		    						<span>$17.60</span>
+		    						<span>Ksh {{checkamount|floatformat:2}}</span>
 		    					</p>
 								</div>
 	          	</div>
 	          	<div class="col-md-12">
 	          		<div class="cart-detail p-3 p-md-4">
 	          			<h3 class="billing-heading mb-4">Payment Method</h3>
+						  <div class="form-group">
+									<div class="form-group">
+										<label for="mpesa_code">M-Pesa Code</label>
+										<input type="text" id="mpesa_code" class="form-control" placeholder="Enter M-Pesa code">
+									</div>
+									<div class="form-group">
+										<div class="col-md-12">
+											<button type="button" id="mpesa_button" class="btn btn-primary">M-Pesa:</button>
+											<p id="error_message" style="color: red;"></p> <!-- Placeholder for error message -->
+										</div>
+									</div>
+							
 									<div class="form-group">
 										<div class="col-md-12">
 											<div class="radio">
-											   <label><input type="radio" name="optradio" class="mr-2"> Direct Bank Tranfer</label>
+											   <label> Paypal:</label>
 											</div>
 										</div>
 									</div>
 									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio" class="mr-2"> Check Payment</label>
-											</div>
-										</div>
+										
+										<div>{{ form.render }}</div>
 									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio" class="mr-2"> Paypal</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="checkbox">
-											   <label><input type="checkbox" value="" class="mr-2"> I have read and accept the terms and conditions</label>
-											</div>
-										</div>
-									</div>
-									<p><a href="#"class="btn btn-primary py-3 px-4">Place an order</a></p>
-								</div>
+							</div>
 	          	</div>
 	          </div>
-          </div> <!-- .col-md-8 -->
+          </div> 
         </div>
       </div>
-    </section> <!-- .section -->
+    </section> 
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded", function () {
+			document.getElementById("mpesa_button").addEventListener("click", function () {
+				var mpesaCode = document.getElementById("mpesa_code").value.trim();
+				var errorMessage = document.getElementById("error_message");
+				if (mpesaCode.length === 10) {
+					// Generate the URL for the 'core:invoice' view with username parameter
+					var invoiceUrl = "{% url 'core:invoice' username=request.user.username %}";
+					// Redirect to the generated invoice URL with M-Pesa code as query parameter
+					window.location.href = invoiceUrl + "?mpesa_code=" + encodeURIComponent(mpesaCode);
+				} else {
+					errorMessage.textContent = "M-Pesa code must be exactly 10 characters long.";
+				}
+			});
+		});
+	</script>
+	
+	
 {% endblock content %}

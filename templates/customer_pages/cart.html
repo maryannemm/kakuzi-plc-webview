@@ -59,7 +59,7 @@ Session Data:
                     <h3 class="mb-3">Cart Totals</h3>
                     <div class="d-flex justify-content-between">
                         <span>Subtotal</span>
-                        <span>Ksh {{ total_price|floatformat:2 }}</span>
+                        <span>Ksh {{ total_price|floatformat:2|sub:200.00 }}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
@@ -72,10 +72,12 @@ Session Data:
                         <span>Ksh {{ total_price|floatformat:2 }}</span>
                     </div>
                 </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'core:checkout' request.user.username %}" class="btn btn-primary btn-block py-3">Proceed to Checkout</a>
+                </div>
+                <hr>
             </div>
-            <div class="text-center mt-4">
-                <a href="{% url 'core:checkout' request.user.username %}" class="btn btn-primary btn-block py-3">Proceed to Checkout</a>
-            </div>
+            
         </div>
     </div>
 </div>

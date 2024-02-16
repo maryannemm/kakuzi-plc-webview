@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Kakuzi PLC</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include "core/importstatic.html" %}
+
+    <!-- Add Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{% static 'js/cdnjs/html2pdf.bundle.min.js' %}"></script>
+
+    <!-- Add mathfilters -->
+    {% load mathfilters %}
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="hero-wrap hero-bread" style="background-image: url('images/bg_1.jpg');">
+                    <div class="row no-gutters slider-text align-items-center justify-content-center">
+                        <div class="col-md-9 ftco-animate text-center">
+                            <p class="breadcrumbs"><a href="{% url 'core:index' %}" class="nav-link">Home</a> <span class="mx-2"></span> <span>Invoice</span></p>
+                        </div>
+                    </div>
+                </div>
+                <section class="ftco-section">
+                    <div class="invoice-container">
+                        <p class="breadcrumbs"><a href="{% url 'core:index' %}" class="nav-link">Home</a> <span class="mx-2"></span>
+                        <div class="invoice-header text-center mb-4">
+                            <h2 class="mb-3">Invoice</h2>
+                            <p class="font-weight-bold">Name: {{ request.user.username }}</p>
+                            <p class="font-weight-bold">Email: {{ request.user.email }}</p>
+                            <p class="font-weight-bold">Date: {{ current_date }}</p>
+                        </div>
+                        <div class="invoice-details">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order_items %}
+                                        <tr>
+                                            <td>{{ item.title }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>Ksh {{ item.price }}</td>
+                                            <td>Ksh {{ item.price|mul:item.quantity|floatformat:2 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        <tr>
+                                            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                            <td><strong>Ksh {{ checkout_amount }}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button onclick="printInvoice()" class="btn btn-primary mr-2 btn-print">Print Invoice</button>
+                            <button onclick="downloadPDF()" class="btn btn-primary btn-print">Download Invoice</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Bootstrap JS (optional) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+        @media print {
+            .btn-print {
+                display: none;
+            }
+        }
+    </style>
+
+    <script>
+
+        function printInvoice() {
+            // Hide the buttons before printing
+            document.querySelectorAll('.btn-primary').forEach(function(btn) {
+                btn.style.display = 'none';
+            });
+
+            // Print the page
+            window.print();
+
+            // Show the buttons after a short delay
+            setTimeout(function() {
+                document.querySelectorAll('.btn-primary').forEach(function(btn) {
+                    btn.style.display = 'block';
+                });
+            }, 1000); 
+        }
+
+        function downloadPDF() {
+            // Select the element containing the invoice content
+            const invoiceElement = document.querySelector('.invoice-container');
+        
+            // Use html2pdf to convert the HTML content to PDF
+            html2pdf()
+                .from(invoiceElement)
+                .save('invoice.pdf');
+        }
+    </script>
+</body>
+</html>

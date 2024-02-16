@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'crispy_forms',
     'mathfilters',
+    'paypal.standard.ipn',
 
     # Custom Apps
     'core',
@@ -127,6 +128,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_URL='userauths:login'
+LOGOUT_URL='userauths:logout'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -166,4 +170,9 @@ CKEDITOR_CONFIGS = {
 }
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'  # or 'bootstrap3' depending on your Bootstrap version
+
+#paypal configs
+PAYPAL_RECEIVER_EMAIL=''
+PAYPAL_TEST = True
+
 

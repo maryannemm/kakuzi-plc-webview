@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 from urllib import request, response
 from django.db.models.base import Model as Model
@@ -14,8 +15,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.http import JsonResponse
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect,HttpResponse
 from django.utils import timezone
+from django.http import request
+from paypal.standard.forms import PayPalPaymentsForm
+from django.conf import settings
+
 
 
 
@@ -118,7 +123,6 @@ class TagListView(LoginRequiredMixin, ListView):
         context['tag'] = Tag.objects.get(slug=tag_slug)
         return context
     
-
 @method_decorator(login_required, name='dispatch')
 class AddReview(CreateView):
     model = ProductReview
@@ -214,9 +218,6 @@ class CategoriesPriceRangeFilterView(TemplateView):
 
         return self.render_to_response(context)
 
-
-
-
 class AddToCartView(View):
     def post(self, request, *args, **kwargs):
         # Retrieve data from the POST request
@@ -264,26 +265,6 @@ class AddToCartView(View):
 
         # Show a success message
         messages.success(request, 'Product added to cart successfully')
-
-        # Save cart data to the database
-        if request.user.is_authenticated:
-            cart_order_obj = CartOrder.objects.create(
-                user=request.user,
-                price=total_price,
-                payment_status=False,
-                order_date=timezone.now(),
-                order_status='processing'
-            )
-            for item in cart_order['items']:
-                CartOrderItems.objects.create(
-                    order=cart_order_obj,
-                    item=item['title'],
-                    image=item['image'],
-                    price=item['price'],
-                    total=float(item['price']) * item['quantity'],
-                    qty=item['quantity']
-                )
-
         # Return a JSON response with the success message and total number of items
         return JsonResponse({
             'message': 'Product added to cart successfully',
@@ -292,7 +273,6 @@ class AddToCartView(View):
             'cart_items': cart_order['items'],
             'image': image   
         })
-
     
 class CartListView(LoginRequiredMixin, TemplateView):
     template_name = 'customer_pages/cart.html'
@@ -305,7 +285,7 @@ class CartListView(LoginRequiredMixin, TemplateView):
         
         # Initialize total items and total price
         total_items = sum(item['quantity'] for item in cart_order_items)
-        total_price = sum(float(item['price']) * int(item['quantity']) for item in cart_order_items)+200
+        total_price = sum(float(item['price']) * int(item['quantity']) for item in cart_order_items)
         
         # Retrieve full product details for each item in the cart
         cart_items_details = []
@@ -371,7 +351,6 @@ class DeleteFromCartView(LoginRequiredMixin, View):
         # Return a JSON response with the total price of the cart
         return JsonResponse({'total_price': total_price})
 
-
 class UpdateCartView(LoginRequiredMixin, View):
    def post(self, request, *args, **kwargs):
         pid = request.POST.get('pid')
@@ -404,10 +383,104 @@ class UpdateCartView(LoginRequiredMixin, View):
 
         # Return a JSON response with the total price of the cart
         return JsonResponse({'total_price': total_price})
+            
+class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'customer_pages/checkout.html'
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        request = self.request
+        # Check if the cart order exists in the session
+        if 'cart_order' in request.session:
+            cart_order = request.session['cart_order']
+        else:
+            return JsonResponse({'error': 'Cart not found'}, status=400)
+        # Access the request object using self.request
         
-       
-    # Return your HTTP response
-        return JsonResponse({'error': 'Cart not found'}, status=400)
+        checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+        order=CartOrder.objects.create(
+            user=request.user,
+            price=checkout_amount,
+
+        )
+        
+        for item in cart_order['items']:
+            cart_order_items=CartOrderItems.objects.create(
+                order=order,
+                invoice_number='INVOICE_NO'+str(order.id),
+                item= item['title'],
+                image=item['image'],
+                qty=item['quantity'],
+                price=item['price'],
+                total= float(item['quantity'])*float(item['price'])
+            )
+        paypal_amount_usd= float(checkout_amount/150)
+        paypal_dict = {
+        "business": settings.PAYPAL_RECEIVER_EMAIL,
+        "amount": paypal_amount_usd,
+        "item_name": "Order-item-no"+ str(order.id),
+        "invoice": 'INVOICE_NO'+str(order.id),
+        "currency_code":'USD',
+        "notify_url": request.build_absolute_uri(reverse('core:paypal-ipn')),
+        "return": request.build_absolute_uri(reverse('core:paypal_success')),
+        "cancel_return": request.build_absolute_uri(reverse('core:paypal_error')),
+        }
+        form = PayPalPaymentsForm(initial=paypal_dict)
+        
+        
+
+        context = super().get_context_data(**kwargs)
+        checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+        total_items = sum(item['quantity'] for item in cart_order['items'])
+        context["checkamount"] = checkout_amount
+        context["total"] = total_items
+        context["items"] = cart_order
+        context['form']=form
+        context['username']=request.user.username
+        return context
+
+
+class PayPalSuccessView(LoginRequiredMixin ,TemplateView):
+    template_name = 'customer_pages/invoice.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Access the cart order from the session
+        if 'cart_order' in self.request.session:
+            cart_order = self.request.session['cart_order']
+        else:
+            return JsonResponse({'error': 'Cart not found'}, status=400)
+
+        # Calculate checkout amount and total items
+        checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+
+        cart_order_items = self.request.session.get('cart_order', {}).get('items', [])
+
+        # Add necessary data to the context
+        context["checkout_amount"] = checkout_amount
+        context["order_items"] = cart_order_items
+        context['request']=self.request
+        context["current_date"] = timezone.now()
+
+        return context
     
-class CheckoutTemplateView(LoginRequiredMixin,TemplateView):
-    template_name='customer_pages/checkout.html'
+    
+class PayPalCancelView(View):
+    def get(self, request, *args, **kwargs):
+        # User canceled the payment
+        return HttpResponseRedirect(reverse("customer_pages/payment_cancel.html"))
+
+class PayPalErrorView(View):
+    def get(self, request, *args, **kwargs):
+        # Error occurred during the payment process
+        return HttpResponseRedirect(reverse("customer_pages/payment_error.html"))
+
+class PaymentSuccessView(View):
+    def get(self, request, *args, **kwargs):
+        # Payment was successfully completed
+        return HttpResponseRedirect(reverse("customer_pages/invoice.html"))
+
+class PaymentErrorView(View):
+    def get(self, request, *args, **kwargs):
+        # Error occurred during payment
+        return HttpResponseRedirect(reverse("customer_pages/payment_error.html"))
