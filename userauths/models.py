@@ -22,5 +22,3 @@ class Subscribers(models.Model):
     class Meta:
         verbose_name_plural = 'Subscribers'
 
-class ContactUs(models.Model):
-    date=models.DateTimeField(auto_add_now=True)

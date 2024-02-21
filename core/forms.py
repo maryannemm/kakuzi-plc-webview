@@ -1,5 +1,5 @@
 from django import forms
-from core.models import ProductReview, Address, ShippingCompany
+from core.models import ProductReview, Address, ShippingCompany, ContactUs
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import RegexValidator
  
@@ -42,4 +42,16 @@ class ShippingCompanyForm(forms.ModelForm):
         fields = [ 'company_name']
         error_messages = {'company_name': {'required': 'Shipping company selection is required'}}
 
+class ContactUsForm(forms.Form):
+    name=forms.CharField(widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Your Name'}))
+    email=forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}))
+    subject=forms.CharField(widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Subject'}))
+    message=forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'write your message'}))
+    def __init__(self, *args, **kwargs):
+        super(ContactUsForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.label = '' 
+    class Meta:
+        model=ContactUs
+        fields='__all__'
         

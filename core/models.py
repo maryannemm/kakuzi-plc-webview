@@ -7,6 +7,7 @@ from taggit.managers import TaggableManager
 from django.utils.text import slugify
 from django.core.validators import RegexValidator
 from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor.widgets import CKEditorWidget
 
 
 # Create your models here.
@@ -232,4 +233,16 @@ class ShippingCompany(models.Model):
 
     class Meta:
         verbose_name_plural='Shipping Companies'
+
+class ContactUs(models.Model):
+    date=models.DateTimeField(auto_now_add=True)   
+    name=models.CharField(max_length=20, default='jane doe')
+    subject=models.CharField(max_length=60)
+    email=models.EmailField(default='janedoe@gmail.com')
+    message=RichTextUploadingField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural= 'Contact Us'
     
+    def __str__(self):
+        return self.name

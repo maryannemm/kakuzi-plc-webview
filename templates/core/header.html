@@ -60,7 +60,7 @@
 						{% endif %}
 					</li>
 					<li class="nav-item"><a href="{% url 'core:about' %}" class="nav-link">About</a></li>
-					<li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+					<li class="nav-item"><a href="{% url 'core:contact'%}" class="nav-link">Contact</a></li>
 					{% if request.user.is_authenticated %}
 					<li class="nav-item">
 						<a href="{% url 'core:cart' request.user.username %}" class="nav-link">
@@ -70,6 +70,7 @@
 					</li>
 					<li class="nav-item"><a href="{% url 'core:customer-dashboard' request.user.username %}" class="nav-link">Dashboard</a></li>										
 					<li class="nav-item"><a href="{% url 'userauths:logout' %}" class="nav-link">Logout</a></li>
+					<li class="nav-item"><a href="{% url 'core:customer-dashboard' request.user.username %}" class="nav-link">{{name}}</a></li>
 					{% else %}
 					<li class="nav-item"><a href="{% url 'userauths:login' %}" class="nav-link">Login</a></li>
 					<li class="nav-item"><a href="{% url 'userauths:sign-up' %}" class="nav-link">Register</a></li>

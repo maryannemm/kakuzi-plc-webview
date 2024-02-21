@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'mathfilters',
     'paypal.standard.ipn',
+    'ckeditor',
 
     # Custom Apps
     'core',

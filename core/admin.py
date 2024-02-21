@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany
+from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs
 
 # Register your models here.
 
@@ -48,3 +48,6 @@ class AddressAdmin(admin.ModelAdmin):
 @admin.register(ShippingCompany)
 class ShippingCompanyAdmin(admin.ModelAdmin):
     list_display=('company_name','added_by','date')
+@admin.register(ContactUs)
+class ContactUsAdmin(admin.ModelAdmin):
+    list_display=['name','subject','date','message']

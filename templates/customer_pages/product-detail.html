@@ -3,8 +3,6 @@
 
 {% block content %}
 
-<!-- Display messages -->
-
 <!-- Common structure for product detail view -->
 <div class="hero-wrap hero-bread" style="background-image: url('{{ STATIC_URL }}images/bg_1.jpg');">
     <div class="container">
@@ -19,6 +17,7 @@
 </div>
 
 <section class="ftco-section">
+    
     <div class="container">
         <div class="row">
             <div class="col-lg-6 mb-5 ftco-animate">
@@ -67,6 +66,7 @@
                     data-title="{{ product.title }}"
                     data-price="{{ product.price|floatformat:2 }}"
                     data-image="{{ product.image.url }}"
+                    data-db="{{ product.quantity_available }}"
                     data-add-to-cart-url="{% url 'core:add-to-cart' %}"
                     value="add to cart">
                     Add to Cart
@@ -91,6 +91,7 @@
         </div>
     </div>
 </section>
+<div id="error-message" class="text-center text-danger font-weight-bold"></div>
 
 <!-- Product review section -->
 <section class="ftco-section">
@@ -178,9 +179,12 @@
         var title = this.getAttribute('data-title');
         var price = this.getAttribute('data-price');
         var image = this.getAttribute('data-image');
+        var available = this.getAttribute('data-db');
         var current_price=this.getAttribute('current-product-price')
         var quantity = document.getElementById('quantity').value;
         var addToCartUrl = this.getAttribute('data-add-to-cart-url');
+        console.log(quantity)
+        console.log(available)
 
         // Send AJAX request to add the product to the cart
         fetch(addToCartUrl, {
@@ -196,11 +200,19 @@
                 'quantity': quantity,
                 'image': image,
                 'current_price':current_price,
+                'db':available
                 
             }),
-            dataType:'json'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json(); // Proceed with parsing the JSON response
+            } else if (response.status === 400) {
+                throw new Error('Requested quantity exceeds available quantity');
+            } else {
+                throw new Error('Response status is not OK: ' + response.status);
+            }
+        })
         .then(data => {
             // Handle the response (e.g., show a success message)
             alert('Product added to cart!');
@@ -209,7 +221,7 @@
             location.reload();
         })
         .catch(error => {
-            console.error('Error:', error);
+            document.getElementById('error-message').textContent = error.message;;
         });
     });
 
@@ -218,6 +230,8 @@
         document.getElementById('cartItemCount').textContent = count;
     }
     updateCartCount(data.total_items);
+
+
 
     // add to wishlist
     function addToWishlist(productId) {

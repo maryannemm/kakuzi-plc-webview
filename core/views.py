@@ -21,13 +21,12 @@ from django.utils import timezone
 from django.http import request
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
-from .forms import CustomerAddressForm, ShippingCompanyForm
+from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm
 from django.urls import reverse_lazy
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany
+from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core import serializers
-
 
 
 
@@ -227,61 +226,69 @@ class AddToCartView(View):
         pid = request.POST.get('pid')
         title = request.POST.get('title')
         price = request.POST.get('price')
-        quantity = request.POST.get('quantity')
+        quantity = int(request.POST.get('quantity'))
         image = request.POST.get('image')
+        db = int(request.POST.get('db'))
 
-        # Check if the cart order exists in the session
-        if 'cart_order' in request.session:
-            cart_order = request.session['cart_order']
-        else:
-            # If the cart order doesn't exist, create a new one
-            cart_order = {'items': []}
 
-        # Update or add the item to the cart
-        updated_item = False
-        for item in cart_order['items']:
-            if item['pid'] == pid:
-                item['quantity'] += int(quantity)
-                updated_item = True
-                break
+        if quantity <= db:
 
-        if not updated_item:
-            cart_order['items'].append({
-                'pid': pid,
-                'title': title,
-                'price': price,
-                'quantity': int(quantity),
-                'image': image,
+            # Check if the cart order exists in the session
+            if 'cart_order' in request.session:
+                cart_order = request.session['cart_order']
+            else:
+                # If the cart order doesn't exist, create a new one
+                cart_order = {'items': []}
+
+            # Update or add the item to the cart
+            updated_item = False
+            for item in cart_order['items']:
+                if item['pid'] == pid:
+                    item['quantity'] += int(quantity)
+                    updated_item = True
+                    break
+
+            if not updated_item:
+                cart_order['items'].append({
+                    'pid': pid,
+                    'title': title,
+                    'price': price,
+                    'quantity': int(quantity),
+                    'image': image,
+                })
+
+            # Update the cart order in session
+            request.session['cart_order'] = cart_order
+
+            # Calculate the total number of items in the cart
+            total_items = sum(item['quantity'] for item in cart_order['items'])
+
+            # Update the cart count in session
+            request.session['cart_count'] = total_items
+
+            # Calculate the total price of the cart
+            total_price = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+
+            # Show a success message
+            messages.success(request, 'Product added to cart successfully')
+            # Return a JSON response with the success message and total number of items
+            return JsonResponse({
+                'message': 'Product added to cart successfully',
+                'total_items': total_items,
+                'total_price': total_price,
+                'cart_items': cart_order['items'],
+                'image': image ,
             })
-
-        # Update the cart order in session
-        request.session['cart_order'] = cart_order
-
-        # Calculate the total number of items in the cart
-        total_items = sum(item['quantity'] for item in cart_order['items'])
-
-        # Update the cart count in session
-        request.session['cart_count'] = total_items
-
-        # Calculate the total price of the cart
-        total_price = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
-
-        # Show a success message
-        messages.success(request, 'Product added to cart successfully')
-        # Return a JSON response with the success message and total number of items
-        return JsonResponse({
-            'message': 'Product added to cart successfully',
-            'total_items': total_items,
-            'total_price': total_price,
-            'cart_items': cart_order['items'],
-            'image': image   
-        })
+        else:
+            return JsonResponse({'error': 'Requested quantity exceeds available quantity'}, status=400)   
     
 class CartListView(LoginRequiredMixin, TemplateView):
     template_name = 'customer_pages/cart.html'
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         
         # Retrieve cart order items from the session
         cart_order_items = self.request.session.get('cart_order', {}).get('items', [])
@@ -289,6 +296,7 @@ class CartListView(LoginRequiredMixin, TemplateView):
         # Initialize total items and total price
         total_items = sum(item['quantity'] for item in cart_order_items)
         total_price = sum(float(item['price']) * int(item['quantity']) for item in cart_order_items)
+    
         
         # Retrieve full product details for each item in the cart
         cart_items_details = []
@@ -358,34 +366,41 @@ class UpdateCartView(LoginRequiredMixin, View):
    def post(self, request, *args, **kwargs):
         pid = request.POST.get('pid')
         quantity = int(request.POST.get('quantity'))
+    
+        try:
+            product = Product.objects.get(pid=pid)
+        except Product.DoesNotExist:
+            return JsonResponse({'error': 'Product not found'}, status=400)
 
-        # Check if the cart order exists in the session
-        if 'cart_order' in request.session:
-            cart_order = request.session['cart_order']
+        if quantity <= product.quantity_available:
+
+            # Check if the cart order exists in the session
+            if 'cart_order' in request.session:
+                cart_order = request.session['cart_order']
+            else:
+                return JsonResponse({'error': 'Cart not found'}, status=400)
+
+            # Update the quantity of the specified item in the cart
+            for item in cart_order['items']:
+                if item['pid'] == pid:
+                    item['quantity'] = quantity
+                    break
+
+            # Update the cart order in session
+            request.session['cart_order'] = cart_order
+
+            # Calculate the total number of items in the cart
+            total_items = sum(item['quantity'] for item in cart_order['items'])
+
+            # Calculate the total price of the cart
+            total_price = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+
+            # Update the cart count in session
+            request.session['cart_count'] = total_items
+            # Return a JSON response with the total price of the cart
+            return JsonResponse({'total_price': total_price})
         else:
-            return JsonResponse({'error': 'Cart not found'}, status=400)
-
-        # Update the quantity of the specified item in the cart
-        for item in cart_order['items']:
-            if item['pid'] == pid:
-                item['quantity'] = quantity
-                break
-
-        # Update the cart order in session
-        request.session['cart_order'] = cart_order
-
-        # Calculate the total number of items in the cart
-        total_items = sum(item['quantity'] for item in cart_order['items'])
-
-        # Calculate the total price of the cart
-        total_price = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
-
-        # Update the cart count in session
-        request.session['cart_count'] = total_items
-         
-
-        # Return a JSON response with the total price of the cart
-        return JsonResponse({'total_price': total_price})
+            return JsonResponse({'error': 'Requested quantity exceeds available quantity'}, status=400 )
             
 class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'customer_pages/checkout.html'
@@ -418,6 +433,7 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
             country=address_data['country'],
             user=request.user
         )
+            
 
             # Process the shipping company form
             shipping_company_name = form_shipping.cleaned_data['company_name']
@@ -439,7 +455,6 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
             'address_errors': address_errors,
             'shipping_errors': shipping_errors
         })
-        return JsonResponse({'address_errors': address_errors, 'shipping_errors': shipping_errors}, status=400)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         request = self.request
@@ -467,6 +482,7 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
                 price=item['price'],
                 total= float(item['quantity'])*float(item['price'])
             )
+            
         paypal_amount_usd= float(checkout_amount/150)
         paypal_dict = {
         "business": settings.PAYPAL_RECEIVER_EMAIL,
@@ -511,13 +527,29 @@ class PayPalSuccessView(LoginRequiredMixin ,TemplateView):
 
         # Calculate checkout amount and total items
         checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
-
+        mpesa_code = self.request.GET.get('mpesa_code')
         cart_order_items = self.request.session.get('cart_order', {}).get('items', [])
+
+        # Update product quantity
+        for item in cart_order_items:
+            product_pid = item.get('pid')
+            quantity = item.get('quantity')
+
+            # Retrieve the product using the pid field
+            product = get_object_or_404(Product, pid=product_pid)
+
+            # Check if the product exists
+            if product is not None:
+                # Subtract the purchased quantity from the product's quantity
+                product.quantity_available -= quantity
+                # Save the updated product
+                product.save()
 
         # Add necessary data to the context
         context["checkout_amount"] = checkout_amount
         context["order_items"] = cart_order_items
         context['request']=self.request
+        context['mpesa_code'] = mpesa_code
         context["current_date"] = timezone.now()
         # Empty the cart session after successful checkout
         
@@ -647,29 +679,6 @@ class CustomerCreatetAddressUpdateView(LoginRequiredMixin, FormView):
         # Handle invalid form submission here
         return super().form_invalid(form)
 
-
-def add_to_wishlist(request):
-    if request.method == 'POST':
-        id = request.POST.get('id')
-        if id:
-            try:
-                product = Product.objects.get(id=id)
-                # Check if the product is already in the user's wishlist
-                if WishList.objects.filter(product=product, user=request.user).exists():
-                    return JsonResponse({'success': False, 'message': 'Product already exists in wishlist.'})
-                else:
-                    wishlist = WishList.objects.create(
-                        product=product,
-                        user=request.user
-                    )
-                    return JsonResponse({'success': True})
-            except Product.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'Product does not exist.'})
-        else:
-            return JsonResponse({'success': False, 'message': 'Product ID parameter is missing.'})
-    else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method. Only POST requests are allowed.'})
-
 class AddWishlistView(LoginRequiredMixin ,View):
     def post(self, request):
         if request.method == 'POST':
@@ -705,16 +714,29 @@ class WishListListView( LoginRequiredMixin,ListView):
         return context
     
 class WishlistItemDeleteView(View):
-
     def post(self, request, pid):
         WishList.objects.filter(product__pid=pid, user=request.user).delete()
-        return HttpResponseRedirect(reverse_lazy('core:wishlist', kwargs={'username': request.user.username}))
+        return HttpResponseRedirect(reverse_lazy('core:wishlist', kwargs={'username': self.request.user.username}))
 
 class AboutUsTemplateView(TemplateView):
     template_name='customer_pages/about.html'    
 
+class ContactUsView(FormView):
+    template_name = 'customer_pages/contact.html'
+    form_class = ContactUsForm
 
-    
-       
-    
-    
+    def form_valid(self, form):
+        ContactUs.objects.create(
+            name=form.cleaned_data['name'],
+            email=form.cleaned_data['email'],
+            subject=form.cleaned_data['subject'],
+            message=form.cleaned_data['message']
+        )
+        messages.success(self.request, 'Your message was sent successfully!')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('core:index')
+
+
+

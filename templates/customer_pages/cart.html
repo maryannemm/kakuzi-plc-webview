@@ -49,6 +49,7 @@ Session Data:
                         {% endfor %}
                     </tbody>
                 </table>
+                <div id="error-m" style="color: red;"></div>
             </div>
         </div>
     </div>
@@ -99,7 +100,19 @@ Session Data:
                 beforeSend: function(xhr, settings) {
                     xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
                 },
-                success: function(data) {
+                
+                error: function(xhr, textStatus, errorThrown) {
+                    if (xhr.status === 400) {
+                        // Raise an error
+                        throw new Error('Bad request. Please try again.');
+                        document.getElementById('error-m').innerHTML = 'Bad request. Please try again.';
+                        $('#error-m').text('Bad request. Please try again.');
+                    } else {
+                        // Display an error message in a div for other errors
+                        $('#error-message').text('Error updating cart: ' + xhr.responseText);
+                    }
+                }
+                ,success: function(data) {
                     // Update the cart count in the header
                     var newCount = data.total_items;
                     updateCartCount(newCount);
@@ -110,10 +123,8 @@ Session Data:
                     // Reload the page to reflect the changes in the cart
                     location.reload();
                 },
-                error: function(xhr, textStatus, errorThrown) {
-                    console.log("Error:", errorThrown);
-                }
             });
+
         });
 
 

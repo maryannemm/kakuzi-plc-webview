@@ -3,7 +3,7 @@ from core.views import HomeTemplateView, PriceRangeFilterView, ShopListView, Cat
 from core.views import DeleteFromCartView, UpdateCartView, PayPalSuccessView, PayPalCancelView, PayPalErrorView, CustomerDashboardTemplateView, CustomerOrdersListView, CustomerOrderDetailView, CustomerAddressTemplateView
 from django.views.decorators.csrf import csrf_exempt
 from core.views import CustomerEditAddressUpdateView, CustomerAddressDeleteView, CustomerDefaultAddressUpdateView, CustomerCreatetAddressUpdateView, AddWishlistView, WishListListView, WishlistItemDeleteView
-from core.views import AboutUsTemplateView
+from core.views import AboutUsTemplateView, ContactUsView
 from paypal.standard.ipn import views as paypal_ipn_views
 app_name= 'core'
 urlpatterns = [
@@ -55,12 +55,12 @@ urlpatterns = [
 
     # wishlist
     path('add-to-wishlist/', AddWishlistView.as_view() ,name='add-to-wishlist'),
-    #path('add-to-wishlist/', add_to_wishlist, name='add-to-wishlist'),
     path('wish-list/<str:username>', WishListListView.as_view() ,name='wishlist'),
     path('wishlist/delete/<str:pid>/', WishlistItemDeleteView.as_view(), name='wishlist-delete'),
 
     #about us+ contact us
     path('about-us/', AboutUsTemplateView.as_view(), name='about'),
+    path('contact-us/', ContactUsView.as_view(), name='contact'),
    
 
     ##### 

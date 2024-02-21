@@ -3,6 +3,7 @@ from .models import Category, Address
 def default(request):
     categories = Category.objects.all()
     address = None
+    name=request.user.username
 
     if request.user.is_authenticated:
         try:
@@ -19,4 +20,5 @@ def default(request):
     return {
         'categories': categories,
         'address': address,
+        'name':name
     }
