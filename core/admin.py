@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address
+from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany
 
 # Register your models here.
 
@@ -43,4 +43,8 @@ class WishListAdmin(admin.ModelAdmin):
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'address', 'status')
+    list_display = ('user', 'address', 'status', 'phone', 'county')
+
+@admin.register(ShippingCompany)
+class ShippingCompanyAdmin(admin.ModelAdmin):
+    list_display=('company_name','added_by','date')

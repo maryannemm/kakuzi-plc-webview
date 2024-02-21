@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+    Customer Orders
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include "core/dashboard-nav.html" %}
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-9 px-4">
+            <div class="pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2 text-center">Customer Orders</h1>
+            </div>
+            <!-- Display customer orders -->
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Total</th>
+                                        <th>Payment Status</th>
+                                        <th>Order Date</th>
+                                        <th>Order Status</th>
+                                        <!-- You can add more table headers here if needed -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td> <a href="{% url 'core:order-detail' username=request.user.username order_id=order.id %}">INVOICE_NO_{{ order.id }}</td>
+                                        <td>{{ order.price }}</td>
+                                        {% if order.payment_status == False%}
+                                        <td>Uncomfirmed</td>
+                                        {% else %}
+                                        <td>Comfirmed</td>
+                                        {% endif %}
+                                        <td>{{ order.order_date }}</td>
+                                        <td>{{ order.order_status }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

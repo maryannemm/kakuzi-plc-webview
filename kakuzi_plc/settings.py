@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     # installed apps
     'phonenumber_field',
     'taggit',
-    'ckeditor',
+    'django_ckeditor_5',
     'crispy_forms',
     'mathfilters',
     'paypal.standard.ipn',

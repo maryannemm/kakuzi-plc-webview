@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+    Order Details
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center mb-4">Order Details</h1>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order ID: {{ object.id }}</h5>
+                    <p class="card-text">Total: {{ object.price }}</p>
+                    <p class="card-text">Payment Status: {% if object.payment_status %}Confirmed{% else %}Unconfirmed{% endif %}</p>
+                    <p class="card-text">Order Date: {{ object.order_date }}</p>
+                    <p class="card-text">Order Status: {{ object.order_status }}</p>
+                    <!-- You can add more details here if needed -->
+                </div>
+            </div>
+            <h2 class="mt-4">Order Items</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Image</th>
+                            <th scope="col">Item</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total</th>
+                            <!-- Add more item details here if needed -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                            <td><img src="{{ item.image.url }}" alt="{{ item.item }}" class="img-fluid" style="max-width: 20%;"></td>
+                            <td>{{ item.item }}</td>
+                            <td>{{ item.price }}</td>
+                            <td>{{ item.qty }}</td>
+                            <td>{{ item.total }}</td>
+                            <!-- Add more item details here if needed -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

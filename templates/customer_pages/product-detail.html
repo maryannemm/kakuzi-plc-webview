@@ -40,17 +40,11 @@
                 <p>Quantity Available: {{ product.quantity_available }} kg</p>
 
                 {% if product.tags.all %}
-                <!-- Tags -->
-                <!-- Tags -->
-                <!-- Tags -->
                         <p>Tags:
                             {% for tag in product.tags.all %}
                                 <a href="{% url 'core:tag-list' tag.slug %}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </p>
-
-
-
                 {% endif %}
                 <p class="mb-0 bread">Category: {{ product.category.title|title }}</p>
                 <div class="row mt-4">
@@ -68,17 +62,17 @@
                 </div>
 
                 <button
-                    id="addToCartBtn"
-                   
+                    id="addToCartBtn"                   
                     data-pid="{{ product.pid }}"
                     data-title="{{ product.title }}"
                     data-price="{{ product.price|floatformat:2 }}"
                     data-image="{{ product.image.url }}"
                     data-add-to-cart-url="{% url 'core:add-to-cart' %}"
-                    value="add to cart"
-                >
+                    value="add to cart">
                     Add to Cart
                 </button>
+                <!-- Add to Wishlist button -->
+                <button onclick="addToWishlist('{{ product.id }}')">Add to Wishlist</button>
                 {% if messages %}
                     {% for message in messages %}
                         {% if 'custom-alert-danger' in message.tags %}
@@ -173,52 +167,51 @@
 </section>
 
 <script>
-  // JavaScript code
-// Bind AJAX call to the click event of the "Add to Cart" button
-document.getElementById('addToCartBtn').addEventListener('click', function(event) {
-    event.preventDefault();  // Prevent the default form submission behavior
-    let this_val=$(this);
-    let index=this_val.attr('data-pid')
-    
-    ;
-    var productId = this.getAttribute('data-pid');  // Keep productId as a string
-    var title = this.getAttribute('data-title');
-    var price = this.getAttribute('data-price');
-    var image = this.getAttribute('data-image');
-    var current_price=this.getAttribute('current-product-price')
-    var quantity = document.getElementById('quantity').value;
-    var addToCartUrl = this.getAttribute('data-add-to-cart-url');
+    // Bind AJAX call to the click event of the "Add to Cart" button
+    document.getElementById('addToCartBtn').addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent the default form submission behavior
+        let this_val=$(this);
+        let index=this_val.attr('data-pid')
+        
+        ;
+        var productId = this.getAttribute('data-pid');  // Keep productId as a string
+        var title = this.getAttribute('data-title');
+        var price = this.getAttribute('data-price');
+        var image = this.getAttribute('data-image');
+        var current_price=this.getAttribute('current-product-price')
+        var quantity = document.getElementById('quantity').value;
+        var addToCartUrl = this.getAttribute('data-add-to-cart-url');
 
-    // Send AJAX request to add the product to the cart
-    fetch(addToCartUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-        body: new URLSearchParams({
-            'pid': productId,  
-            'title': title,
-            'price': price,
-            'quantity': quantity,
-            'image': image,
-            'current_price':current_price,
-            
-        }),
-        dataType:'json'
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Handle the response (e.g., show a success message)
-        alert('Product added to cart!');
-        // Update cart count
-        document.getElementById('cartItemCount').textContent = data.total_items;
-        location.reload();
-    })
-    .catch(error => {
-        console.error('Error:', error);
+        // Send AJAX request to add the product to the cart
+        fetch(addToCartUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: new URLSearchParams({
+                'pid': productId,  
+                'title': title,
+                'price': price,
+                'quantity': quantity,
+                'image': image,
+                'current_price':current_price,
+                
+            }),
+            dataType:'json'
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response (e.g., show a success message)
+            alert('Product added to cart!');
+            // Update cart count
+            document.getElementById('cartItemCount').textContent = data.total_items;
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
-});
 
     // Update cart count dynamically using JavaScript
     function updateCartCount(count) {
@@ -226,6 +219,48 @@ document.getElementById('addToCartBtn').addEventListener('click', function(event
     }
     updateCartCount(data.total_items);
 
+    // add to wishlist
+    function addToWishlist(productId) {
+        fetch('/add-to-wishlist/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: new URLSearchParams({
+                'id': productId,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Product added to wishlist successfully!');
+            } else {
+                alert('Failed to add product to wishlist: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while adding the product to wishlist.');
+        });
+    }
+    
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
 </script>
 <style>
     #addToCartBtn {

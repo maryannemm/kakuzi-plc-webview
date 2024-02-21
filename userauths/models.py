@@ -15,8 +15,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
 class Subscribers(models.Model):
     email= models.EmailField(unique= True)
 
     class Meta:
         verbose_name_plural = 'Subscribers'
+
+class ContactUs(models.Model):
+    date=models.DateTimeField(auto_add_now=True)

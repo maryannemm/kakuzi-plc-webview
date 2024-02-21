@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Customer Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Personal Information -->
+    <div class="col-md-9">
+      <main role="main" class="ml-sm-auto col-lg-9 px-4">
+        <div class="pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2">Dashboard</h1>
+        </div>
+        <div class="container-fluid  mt-4">
+            <div class="row">
+              {% include "core/dashboard-nav.html" %}
+              <!-- Personal Information -->
+              <div class="col-md-9">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Personal Information</h5>
+                    <p class="card-text">
+                      <strong>Name:</strong> {{ request.user.username }}
+                    </p>
+                    <p class="card-text">
+                      <strong>Email:</strong> {{ request.user.email }}
+                    </p>
+                    <p class="card-text">
+                      <strong>Date Joined:</strong> {{ request.user.date_joined|date:"F d, Y" }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+      </main>
+    </div>
+
+    <!-- Sidebar -->
+    
+  </div>
+</div>
+{% endblock %}

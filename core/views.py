@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import Any
 from urllib import request, response
 from django.db.models.base import Model as Model
+from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin 
 from taggit.models import Tag
 from django.db.models import Count,Avg,Q, Sum
@@ -20,17 +21,20 @@ from django.utils import timezone
 from django.http import request
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
+from .forms import CustomerAddressForm, ShippingCompanyForm
+from django.urls import reverse_lazy
+from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.core import serializers
 
 
 
 
-
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address
 
 # Create your views here.
 class HomeTemplateView(TemplateView):
-    template_name = "customer_pages/index.html"
-    
+    template_name = "customer_pages/index.html"    
 
 class ShopListView(ListView):
     template_name = 'customer_pages/shop.html'
@@ -44,6 +48,7 @@ class ShopListView(ListView):
        
         
         return context
+
 class CategoryListView(ListView):
     model = Category
     template_name = 'customer_pages/category.html'
@@ -66,7 +71,6 @@ class SupplierListView(LoginRequiredMixin, ListView):
         context["vendors"] = Supplier.objects.all()
         return context
     
-
 class SingleSupplierDetailView(LoginRequiredMixin, DetailView):
     model=Supplier
     template_name=  'stock_pages/vendor-detail.html '
@@ -104,7 +108,6 @@ class SingleProductDetailView(LoginRequiredMixin, DetailView):
         context['pid'] =self.kwargs['pid'] 
 
         return context
-
 
 class TagListView(LoginRequiredMixin, ListView):
     model = Product
@@ -386,6 +389,57 @@ class UpdateCartView(LoginRequiredMixin, View):
             
 class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'customer_pages/checkout.html'
+    form_class_address=CustomerAddressForm
+    form_class_shipping=ShippingCompanyForm
+
+
+
+    def post(self, request, *args, **kwargs):
+        form_address = CustomerAddressForm(request.POST)
+        form_shipping = ShippingCompanyForm(request.POST)
+
+        # Check if all existing addresses have status=False
+        addresses = Address.objects.filter(user=self.request.user)
+        all_statuses_false = all(address.status == False for address in addresses)
+        # Set status based on all_statuses_false
+        status = all_statuses_false
+
+        if form_address.is_valid() and form_shipping.is_valid():
+            # Process the address form
+            address_data = form_address.cleaned_data
+            customer_address = Address.objects.create(
+            first_name=address_data['first_name'],
+            last_name=address_data['last_name'],
+            address=address_data['address'],
+            status=status, 
+            phone=address_data['phone'],
+            city=address_data['city'],
+            county=address_data['county'],
+            country=address_data['country'],
+            user=request.user
+        )
+
+            # Process the shipping company form
+            shipping_company_name = form_shipping.cleaned_data['company_name']
+            try:
+                shipping_company = ShippingCompany.objects.get(company_name=shipping_company_name)
+            except ShippingCompany.DoesNotExist:
+                shipping_company = form_shipping.save(commit=False)
+                shipping_company.added_by = request.user
+                shipping_company.save()
+
+            return redirect(request.path_info)
+        else:
+            # If either form is invalid, return error messages
+            address_errors = form_address.errors.as_json()
+            shipping_errors = form_shipping.errors.as_json()
+            return render(request, self.template_name, {
+            'form_address': form_address,
+            'form_shipping': form_shipping,
+            'address_errors': address_errors,
+            'shipping_errors': shipping_errors
+        })
+        return JsonResponse({'address_errors': address_errors, 'shipping_errors': shipping_errors}, status=400)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         request = self.request
@@ -436,8 +490,12 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
         context["items"] = cart_order
         context['form']=form
         context['username']=request.user.username
+        context['form_address'] = self.form_class_address
+        context['form_shipping'] = self.form_class_shipping
+        context['shipping_companies']= ShippingCompany.objects.all()
+        context["addresses"] = Address.objects.filter(user=self.request.user, status=True)
+        
         return context
-
 
 class PayPalSuccessView(LoginRequiredMixin ,TemplateView):
     template_name = 'customer_pages/invoice.html'
@@ -461,9 +519,10 @@ class PayPalSuccessView(LoginRequiredMixin ,TemplateView):
         context["order_items"] = cart_order_items
         context['request']=self.request
         context["current_date"] = timezone.now()
+        # Empty the cart session after successful checkout
+        
 
-        return context
-    
+        return context    
     
 class PayPalCancelView(View):
     def get(self, request, *args, **kwargs):
@@ -484,3 +543,178 @@ class PaymentErrorView(View):
     def get(self, request, *args, **kwargs):
         # Error occurred during payment
         return HttpResponseRedirect(reverse("customer_pages/payment_error.html"))
+    
+class CustomerDashboardTemplateView(LoginRequiredMixin, TemplateView):
+    template_name='customer_pages/customer_dasboard.html'
+
+class CustomerOrdersListView(LoginRequiredMixin, ListView):
+    template_name='customer_pages/cusomer_orders.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return CartOrder.objects.filter(user=self.request.user).order_by('-order_date')
+
+class CustomerOrderDetailView(LoginRequiredMixin, DetailView):
+    template_name='customer_pages/customer_order_detail.html'
+
+    def get_object(self) -> Model:
+        order_id = self.kwargs.get('order_id')  # for  pass the order_id in the URL
+        return CartOrder.objects.get(id=order_id)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_id = self.kwargs.get('order_id')  
+        context['order_items'] = CartOrderItems.objects.filter(order__id=order_id)
+        return context
+    
+class CustomerAddressTemplateView(LoginRequiredMixin, TemplateView):
+    models=Address
+    template_name='customer_pages/customer_address.html' 
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["addresses"] = Address.objects.filter(user=self.request.user)
+        
+        return context
+
+class CustomerEditAddressUpdateView(LoginRequiredMixin, UpdateView):
+    pass
+
+class CustomerAddressDeleteView(LoginRequiredMixin, DeleteView):
+    model = Address
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
+    
+    def get_success_url(self):
+        username = self.request.user.username
+        return reverse_lazy('core:customer-address', kwargs={'username': username})    
+    
+class CustomerDefaultAddressUpdateView(LoginRequiredMixin, UpdateView):
+    model=Address
+    fields = ['status']
+    template_name='customer_pages/customer_Address_form.html'
+    def form_valid(self, form):
+        # Get the address instance being updated
+        address = form.instance
+
+        # Check if any other address has status=True
+        existing_default_address = Address.objects.filter(user=self.request.user, status=True).exclude(pk=address.pk)
+        if existing_default_address:
+            # If another default address exists, set its status to False
+            existing_default_address.status = False
+            existing_default_address.save()
+
+        # Set status=True for the current address
+        address.status = True
+        address.save()
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect to the customer address page after updating
+        return reverse_lazy('core:customer-address', kwargs={'username': self.request.user.username})
+
+class CustomerCreatetAddressUpdateView(LoginRequiredMixin, FormView):
+    form_class=CustomerAddressForm
+    template_name='customer_pages/customer_Address_form.html'  
+    success_message='Created Address Successfully!'
+
+    def get_success_url(self):
+        # Assuming 'customer-address' requires a username argument
+        username = self.request.user.username
+        return reverse('core:customer-address', kwargs={'username': username})
+
+    def form_valid(self, form):
+        # Process the form data here (save to the database, etc.)
+        
+        customer_address=Address.objects.create(
+            first_name=form.cleaned_data['first_name'],
+            last_name=form.cleaned_data['last_name'],
+            address=form.cleaned_data['address'],
+            status=form.cleaned_data['status'],
+            phone=form.cleaned_data['phone'],
+            city=form.cleaned_data['city'],
+            county=form.cleaned_data['county'],
+            country=form.cleaned_data['country'],
+            user=self.request.user
+
+        )
+        messages.success(self.request, 'Address created successfully!')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Handle invalid form submission here
+        return super().form_invalid(form)
+
+
+def add_to_wishlist(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        if id:
+            try:
+                product = Product.objects.get(id=id)
+                # Check if the product is already in the user's wishlist
+                if WishList.objects.filter(product=product, user=request.user).exists():
+                    return JsonResponse({'success': False, 'message': 'Product already exists in wishlist.'})
+                else:
+                    wishlist = WishList.objects.create(
+                        product=product,
+                        user=request.user
+                    )
+                    return JsonResponse({'success': True})
+            except Product.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Product does not exist.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Product ID parameter is missing.'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method. Only POST requests are allowed.'})
+
+class AddWishlistView(LoginRequiredMixin ,View):
+    def post(self, request):
+        if request.method == 'POST':
+            user= self.request.user
+            product_id=request.POST.get('id')
+
+            if product_id:
+                try:
+                    product=Product.objects.get(id=product_id)
+                    if WishList.objects.filter(product=product, user=request.user).exists():
+                        return JsonResponse({'success': False, 'message': 'Product already exists in wishlist.'})
+                    else:
+                        wishlist = WishList.objects.create(
+                            product=product,
+                            user=request.user
+                        )
+                        return JsonResponse({'success': True})
+                except Product.DoesNotExist:
+                    return JsonResponse({'success': False, 'message': 'Product does not exist.'})
+
+            else:
+                return JsonResponse({'success': False, 'message': 'Product ID parameter is missing.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid request method. Only POST requests are allowed.'})
+
+class WishListListView( LoginRequiredMixin,ListView):
+    model=WishList
+    template_name=  'customer_pages/wishlist.html' 
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["wishlist_items"] =WishList.objects.filter(user=self.request.user) 
+        return context
+    
+class WishlistItemDeleteView(View):
+
+    def post(self, request, pid):
+        WishList.objects.filter(product__pid=pid, user=request.user).delete()
+        return HttpResponseRedirect(reverse_lazy('core:wishlist', kwargs={'username': request.user.username}))
+
+class AboutUsTemplateView(TemplateView):
+    template_name='customer_pages/about.html'    
+
+
+    
+       
+    
+    

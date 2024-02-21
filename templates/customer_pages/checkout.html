@@ -1,174 +1,147 @@
-
 {% extends 'core/base.html' %}
 
 {% block content %}
 {% load mathfilters %}
-    <div class="hero-wrap hero-bread" style="background-image: url('images/bg_1.jpg');">
-      <div class="container">
+<div class="hero-wrap hero-bread" style="background-image: url('images/bg_1.jpg');">
+    <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
-          <div class="col-md-9 ftco-animate text-center">
-          	<p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Checkout</span></p>
-            <h1 class="mb-0 bread">Checkout</h1>
-          </div>
+            <div class="col-md-9 ftco-animate text-center">
+                <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Checkout</span></p>
+                <h1 class="mb-0 bread">Checkout</h1>
+            </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <section class="ftco-section">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-xl-7 ftco-animate">
-						<form action="#" class="billing-form">
-							<h3 class="mb-4 billing-heading">Billing Details</h3>
-	          	<div class="row align-items-end">
-	          		<div class="col-md-6">
-	                <div class="form-group">
-	                	<label for="firstname">Firt Name</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-	              </div>
-	              <div class="col-md-6">
-	                <div class="form-group">
-	                	<label for="lastname">Last Name</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-                </div>
-                <div class="w-100"></div>
-		            <div class="col-md-12">
-		            	<div class="form-group">
-		            		<label for="country">State / Country</label>
-		            		<div class="select-wrap">
-		                  <div class="icon"><span class="ion-ios-arrow-down"></span></div>
-		                  <select name="" id="" class="form-control">
-		                  	<option value="">France</option>
-		                    <option value="">Italy</option>
-		                    <option value="">Philippines</option>
-		                    <option value="">South Korea</option>
-		                    <option value="">Hongkong</option>
-		                    <option value="">Japan</option>
-		                  </select>
-		                </div>
-		            	</div>
-		            </div>
-		            <div class="w-100"></div>
-		            <div class="col-md-6">
-		            	<div class="form-group">
-	                	<label for="streetaddress">Street Address</label>
-	                  <input type="text" class="form-control" placeholder="House number and street name">
-	                </div>
-		            </div>
-		            <div class="col-md-6">
-		            	<div class="form-group">
-	                  <input type="text" class="form-control" placeholder="Appartment, suite, unit etc: (optional)">
-	                </div>
-		            </div>
-		            <div class="w-100"></div>
-		            <div class="col-md-6">
-		            	<div class="form-group">
-	                	<label for="towncity">Town / City</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-		            </div>
-		            <div class="col-md-6">
-		            	<div class="form-group">
-		            		<label for="postcodezip">Postcode / ZIP *</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-		            </div>
-		            <div class="w-100"></div>
-		            <div class="col-md-6">
-	                <div class="form-group">
-	                	<label for="phone">Phone</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-	              </div>
-	              <div class="col-md-6">
-	                <div class="form-group">
-	                	<label for="emailaddress">Email Address</label>
-	                  <input type="text" class="form-control" placeholder="">
-	                </div>
-                </div>
-                <div class="w-100"></div>
-                <div class="col-md-12">
-                	<div class="form-group mt-4">
-										<div class="radio">
-										  <label class="mr-3"><input type="radio" name="optradio"> Create an Account? </label>
-										  <label><input type="radio" name="optradio"> Ship to different address</label>
-										</div>
-									</div>
-                </div>
-	            </div>
-	          </form><!-- END -->
+<section class="ftco-section">
+	<div class="container">
+		<div class="row">
+			{% for address in addresses %}
+			<div class="col-md-6 mb-4 mt-4 py-4">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">{{ address.first_name }} {{ address.last_name }}</h5>
+						<p class="card-text">{{ address.address }}</p>
+						<p class="card-text">{{ address.city }}, {{ address.county }}</p>
+						<p class="card-text">{{ address.country }}</p>
+						<p class="card-text">Phone: {{ address.phone }}</p>
+						{% if address.status %}
+							<span class="badge badge-success">Default Address</span>
+						{% else %}
+							<span class="badge badge-secondary">Not Default Address</span>
+						{% endif %}
+						<div class="mt-3">
+							<a href="{% url 'core:delete-address' address.id %}" class="btn btn-danger btn-sm mr-2">Delete</a>
+							{% if not address.status %}
+								<a href="{% url 'core:make-default-address' address.id %}" class="btn btn-success btn-sm">Make Default</a>
+							{% endif %}
+						</div>
 					</div>
-					<div class="col-xl-5">
-	          <div class="row mt-5 pt-3">
-	          	<div class="col-md-12 d-flex mb-5">
-	          		<div class="cart-detail cart-total p-3 p-md-4">
-	          			<h3 class="billing-heading mb-4">Cart Total</h3>
-	          			<p class="d-flex">
-		    						<span>Subtotal</span>
-		    						<span>Ksh {{checkamount|floatformat:2|sub:200}}</span>
-		    					</p>
-		    					<p class="d-flex">
-		    						<span>Delivery</span>
-		    						<span>Ksh 200</span>
-		    					</p>
-		    					<hr>
-		    					<p class="d-flex total-price">
-		    						<span>Total</span>
-		    						<span>Ksh {{checkamount|floatformat:2}}</span>
-		    					</p>
-								</div>
-	          	</div>
-	          	<div class="col-md-12">
-	          		<div class="cart-detail p-3 p-md-4">
-	          			<h3 class="billing-heading mb-4">Payment Method</h3>
-						  <div class="form-group">
-									<div class="form-group">
-										<label for="mpesa_code">M-Pesa Code</label>
-										<input type="text" id="mpesa_code" class="form-control" placeholder="Enter M-Pesa code">
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<button type="button" id="mpesa_button" class="btn btn-primary">M-Pesa:</button>
-											<p id="error_message" style="color: red;"></p> <!-- Placeholder for error message -->
-										</div>
-									</div>
-							
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label> Paypal:</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										
-										<div>{{ form.render }}</div>
-									</div>
-							</div>
-	          	</div>
-	          </div>
-          </div> 
+				</div>
+			</div>
+			{% endfor %}
+			{% for _ in addresses %}
+				<div class="col-md-6"></div>
+			{% endfor %}
+		</div>
+	</div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-7 ftco-animate">
+                <form action="{% url 'core:checkout' username=request.user.username %}" method="post" class="billing-form">
+                    {% csrf_token %}
+                    {% if messages %}
+					<ul class="messages">
+						{% for message in messages %}
+						<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+						{% endfor %}
+					</ul>
+					{% endif %}
+                    <h3 class="mb-4 billing-heading">Billing Details</h3>                    
+                        <div class="col-md-6">
+                            <div class="form-group">
+								{{ form_address.as_p }}						
+							</div>	
+						</div>
+                    <!-- Billing form end -->
+
+                    <!-- Shipping company form -->
+					<div class="form-group">
+						<label for="shipping_company">Shipping Company</label>
+						{{ form_shipping.company_name }}
+						{% if form_shipping.errors.company_name %}
+							<p class="error-message">{{ form_shipping.errors.company_name }}</p>
+						{% endif %}
+					</div>					
+                    <!-- Submit button -->
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+			
+            <div class="col-xl-5">
+                <div class="row mt-5 pt-3">
+                    <div class="col-md-12 d-flex mb-5">
+                        <div class="cart-detail cart-total p-3 p-md-4">
+                            <h3 class="billing-heading mb-4">Cart Total</h3>
+                            <p class="d-flex">
+                                <span>Subtotal</span>
+                                <span>Ksh {{checkamount|floatformat:2|sub:200}}</span>
+                            </p>
+                            <p class="d-flex">
+                                <span>Delivery</span>
+                                <span>Ksh 200</span>
+                            </p>
+                            <hr>
+                            <p class="d-flex total-price">
+                                <span>Total</span>
+                                <span>Ksh {{checkamount|floatformat:2}}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="cart-detail p-3 p-md-4">
+                            <h3 class="billing-heading mb-4">Payment Method</h3>
+                            <div class="form-group">
+                                <label for="mpesa_code">M-Pesa Code</label>
+                                <input type="text" id="mpesa_code" class="form-control" placeholder="Enter M-Pesa code">
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <button type="button" id="mpesa_button" class="btn btn-primary">M-Pesa</button>
+                                    <p id="error_message" style="color: red;"></p> <!-- Placeholder for error message -->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <div class="radio">
+                                        <label> Paypal:</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                {{ form.render }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </section> 
-	<script type="text/javascript">
-		document.addEventListener("DOMContentLoaded", function () {
-			document.getElementById("mpesa_button").addEventListener("click", function () {
-				var mpesaCode = document.getElementById("mpesa_code").value.trim();
-				var errorMessage = document.getElementById("error_message");
-				if (mpesaCode.length === 10) {
-					// Generate the URL for the 'core:invoice' view with username parameter
-					var invoiceUrl = "{% url 'core:invoice' username=request.user.username %}";
-					// Redirect to the generated invoice URL with M-Pesa code as query parameter
-					window.location.href = invoiceUrl + "?mpesa_code=" + encodeURIComponent(mpesaCode);
-				} else {
-					errorMessage.textContent = "M-Pesa code must be exactly 10 characters long.";
-				}
-			});
-		});
-	</script>
-	
-	
+    </div>
+</section>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("mpesa_button").addEventListener("click", function () {
+            var mpesaCode = document.getElementById("mpesa_code").value.trim();
+            var errorMessage = document.getElementById("error_message");
+            if (mpesaCode.length === 10) {
+                var invoiceUrl = "{% url 'core:invoice' username=request.user.username %}";
+                window.location.href = invoiceUrl + "?mpesa_code=" + encodeURIComponent(mpesaCode);
+            } else {
+                errorMessage.textContent = "M-Pesa code must be exactly 10 characters long.";
+            }
+        });
+    });
+</script>
+
 {% endblock content %}

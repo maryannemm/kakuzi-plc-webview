@@ -1,5 +1,3 @@
-# core/context_processors.py
-
 from .models import Category, Address
 
 def default(request):
@@ -8,9 +6,14 @@ def default(request):
 
     if request.user.is_authenticated:
         try:
-            address = Address.objects.get(user=request.user)
+            # Retrieve the default address for the user
+            address = Address.objects.get(user=request.user, status=True)
         except Address.DoesNotExist:
-            # Handle the case where the address doesn't exist
+            # Handle the case where the default address doesn't exist
+            pass
+        except Address.MultipleObjectsReturned:
+            # Handle the case where multiple default addresses are found
+            # You may want to log this occurrence for further investigation
             pass
     
     return {

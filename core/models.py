@@ -5,7 +5,9 @@ from userauths.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 from taggit.managers import TaggableManager
 from django.utils.text import slugify
+from django.core.validators import RegexValidator
 from ckeditor_uploader.fields import RichTextUploadingField
+
 
 # Create your models here.
 
@@ -29,6 +31,11 @@ RATINGS = (
     ( 3,"★★★☆☆"),
     ( 4,"★★★★☆"),
     ( 5,"★★★★★"),
+)
+SHIPPING=(
+    ('fedex','FedEx'),
+    ('dhl', 'DHL Express'),
+    ('speedaf', 'SpeedAF'),
 )
 
 
@@ -124,12 +131,13 @@ class Product(models.Model):
     
 
 class ProductImages(models.Model):
-    images= models.ImageField(upload_to='product-images', default='product.jpg')
-    product=models.ForeignKey(Product, on_delete=models.SET_NULL, null = True)
-    date=models.DateTimeField(auto_now_add=True)
+    images = models.ImageField(upload_to='product-images', default='product.jpg') 
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    date = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        verbose_name_plural=" Product Images"
+        verbose_name_plural = "Product Images"
+
 
 
 ##############################cart, orders, ordered items in the cart
@@ -140,6 +148,7 @@ class CartOrder(models.Model):
     payment_status=models.BooleanField(default=False)
     order_date=models.DateTimeField(auto_now_add=True)
     order_status = models.CharField(choices=STATUS_CHOICES, max_length=30, default='pending')
+
 
     class Meta:
         verbose_name_plural='Cart Orders'
@@ -154,6 +163,9 @@ class CartOrderItems(models.Model):
     total=models.DecimalField(max_digits=200, default=200, decimal_places=2)
     qty=models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.item
+
     class Meta:
         verbose_name_plural='Cart Order Items'
 
@@ -161,7 +173,7 @@ class CartOrderItems(models.Model):
         return mark_safe('<img src="%s" width="50" />' % self.image.url)  
     
     def order_image(self):
-        return mark_safe('<img src="/media/%s" width="50" />' % self.image.url)
+        return mark_safe('<img src="%s" width="50" />' % self.image.url)
     
     ##########product Review, wishlist address############################
 
@@ -180,6 +192,8 @@ class ProductReview(models.Model):
     def get_rating(self):
         return self.ratings
 
+
+
 class WishList(models.Model):
     user=models.ForeignKey(User, on_delete=models.SET_NULL, null= True)
     product=models.ForeignKey(Product, on_delete=models.SET_NULL, null= True)
@@ -196,8 +210,26 @@ class WishList(models.Model):
 
 class Address(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null= True)
+    first_name=models.CharField(max_length=50, default= 'Jane')
+    last_name=models.CharField(max_length=50, default= 'Doe')
     address=models.CharField(max_length=100, null=True)
     status= models.BooleanField(default=False)
+    phone=PhoneNumberField(null=False, blank=False, default='+2549567890')
+    city=models.CharField(max_length=30, default='Nairobi')
+    county=models.CharField(max_length=30, default='Nairobi')
+    country=models.CharField(max_length=30, default='Kenya')
 
     class Meta:
         verbose_name_plural = "Address"
+
+class ShippingCompany(models.Model):
+    company_name=models.CharField(max_length=50)
+    added_by=models.ForeignKey(User, on_delete=models.CASCADE,  verbose_name='Added by')
+    date=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.company_name
+
+    class Meta:
+        verbose_name_plural='Shipping Companies'
+    

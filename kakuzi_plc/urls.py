@@ -9,7 +9,7 @@ urlpatterns = [
     path("", include('core.urls')),
     path("user/", include('userauths.urls')),
 
-    path("ckeditor/", include('ckeditor_uploader.urls')),
+    path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
 ]
 
 # Add the following lines for serving static and media files in development

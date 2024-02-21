@@ -1,0 +1,36 @@
+<!-- Sidebar -->
+{% include "core/importstatic.html" %}
+<nav class="col-md-3 bg-light sidebar mt-4 py-4 "> <!-- Added py-4 class for vertical padding -->
+    <div class="sidebar-sticky">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active ml-3" href="#">
+                    <span data-feather="user"></span>
+                    Profile <span class="sr-only">(current)</span>
+                </a>
+            </li>
+            <hr>
+            <li class="nav-item">
+                <a class="nav-link ml-3" href="{% url 'core:customer-orders' request.user.username %}">
+                    <span data-feather="shopping-bag"></span>
+                    Orders
+                </a>
+            </li>
+            <hr>
+            <li class="nav-item">
+                <a class="nav-link ml-3" href="{% url 'core:customer-address' request.user.username%}">
+                    <span data-feather="settings"></span>
+                    Address
+                </a>
+            </li>
+            <hr>
+            <li class="nav-item">
+                <a class="nav-link ml-3" href="#">
+                    <span data-feather="settings"></span>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </div>
+    <hr class="my-4"> <!-- Horizontal rule for separation -->
+</nav>
