@@ -60,17 +60,17 @@ Session Data:
                     <h3 class="mb-3">Cart Totals</h3>
                     <div class="d-flex justify-content-between">
                         <span>Subtotal</span>
-                        <span>Ksh {{ total_price|floatformat:2|sub:200.00 }}</span>
+                        <span>Ksh {{ total_price|floatformat:2 }}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
                         <span>Delivery</span>
-                        <span>Ksh 200.00</span>
+                        <span>Ksh {{delivery |floatformat:2 }}</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
                         <span>Total</span>
-                        <span>Ksh {{ total_price|floatformat:2 }}</span>
+                        <span>Ksh {{ final_price|floatformat:2 }}</span>
                     </div>
                 </div>
                 <div class="text-center mt-4">

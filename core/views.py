@@ -21,12 +21,12 @@ from django.utils import timezone
 from django.http import request
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
-from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm
+from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm, EditCustomerProfileForm
 from django.urls import reverse_lazy
 from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.core import serializers
+from userauths.models import Profile
 
 
 
@@ -296,6 +296,7 @@ class CartListView(LoginRequiredMixin, TemplateView):
         # Initialize total items and total price
         total_items = sum(item['quantity'] for item in cart_order_items)
         total_price = sum(float(item['price']) * int(item['quantity']) for item in cart_order_items)
+        delivery=200
     
         
         # Retrieve full product details for each item in the cart
@@ -312,6 +313,8 @@ class CartListView(LoginRequiredMixin, TemplateView):
         context['cart_items'] = cart_items_details
         context['total_items'] = total_items
         context['total_price'] = total_price
+        context['delivery'] = delivery
+        context['final_price']=total_price+delivery
         context['cart_order_items']=cart_order_items
 
         self.request.session.save()
@@ -500,8 +503,12 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
+        delivery=200
+        final=checkout_amount+delivery
         total_items = sum(item['quantity'] for item in cart_order['items'])
         context["checkamount"] = checkout_amount
+        context['final_amount']=final
+        context['delivery']=delivery
         context["total"] = total_items
         context["items"] = cart_order
         context['form']=form
@@ -552,6 +559,8 @@ class PayPalSuccessView(LoginRequiredMixin ,TemplateView):
         context['mpesa_code'] = mpesa_code
         context["current_date"] = timezone.now()
         # Empty the cart session after successful checkout
+        self.request.session['cart_count'] = 0
+        del self.request.session['cart_order']
         
 
         return context    
@@ -578,6 +587,13 @@ class PaymentErrorView(View):
     
 class CustomerDashboardTemplateView(LoginRequiredMixin, TemplateView):
     template_name='customer_pages/customer_dasboard.html'
+    Model= Profile
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        customer_profile=get_object_or_404(Profile, user=self.request.user)
+        context["profile"] = customer_profile
+        return context
 
 class CustomerOrdersListView(LoginRequiredMixin, ListView):
     template_name='customer_pages/cusomer_orders.html'
@@ -738,5 +754,23 @@ class ContactUsView(FormView):
     def get_success_url(self):
         return reverse('core:index')
 
+class EditCustomerProfileView(FormView):
+    form_class=EditCustomerProfileForm
+    template_name='customer_pages/customer_profile_edit.html'
+
+    def form_valid(self, form):
+        user=self.request.user
+        profile=get_object_or_404(Profile, user=user)
+
+        profile.image=form.cleaned_data['image']
+        profile.full_name=form.cleaned_data['full_name']
+        profile.bio=form.cleaned_data['bio']
+        profile.user=user
+
+        profile.save()
+        return super().form_valid(form)
+    def get_success_url(self):
+         return reverse_lazy('core:customer-dashboard' , kwargs={'username': self.request.user.username})
+    
 
 

@@ -85,16 +85,16 @@
                             <h3 class="billing-heading mb-4">Cart Total</h3>
                             <p class="d-flex">
                                 <span>Subtotal</span>
-                                <span>Ksh {{checkamount|floatformat:2|sub:200}}</span>
+                                <span>Ksh {{checkamount|floatformat:2}}</span>
                             </p>
                             <p class="d-flex">
                                 <span>Delivery</span>
-                                <span>Ksh 200</span>
+                                <span>Ksh {{delivery |floatformat:2}}</span>
                             </p>
                             <hr>
                             <p class="d-flex total-price">
                                 <span>Total</span>
-                                <span>Ksh {{checkamount|floatformat:2}}</span>
+                                <span>Ksh {{final_amount|floatformat:2}}</span>
                             </p>
                         </div>
                     </div>

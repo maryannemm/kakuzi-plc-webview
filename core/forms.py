@@ -1,5 +1,6 @@
 from django import forms
 from core.models import ProductReview, Address, ShippingCompany, ContactUs
+from userauths.models import Profile
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import RegexValidator
  
@@ -54,4 +55,13 @@ class ContactUsForm(forms.Form):
     class Meta:
         model=ContactUs
         fields='__all__'
+    
+class EditCustomerProfileForm(forms.ModelForm):
+    image=forms.ImageField()
+    full_name=forms.CharField(widget= forms.TextInput(attrs={'class': 'form-control', 'placeholder':' Full Name'}))
+    bio=forms.CharField(widget=forms.Textarea({'class':'form-group','placeholder':'Enter Bio '}))
+
+    class Meta:
+        model=Profile
+        fields=['image', 'full_name', 'bio']
         

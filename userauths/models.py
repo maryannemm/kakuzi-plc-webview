@@ -22,3 +22,18 @@ class Subscribers(models.Model):
     class Meta:
         verbose_name_plural = 'Subscribers'
 
+
+
+class Profile(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='image', default='farmer.jpg')
+    full_name=models.CharField(max_length=60, default='Jane Doe', null=False)
+    bio=models.CharField(max_length=200, null=True)
+    verified=models.BooleanField( default=False)
+
+    class Meta:
+        verbose_name_plural='Customer Profiles'
+
+    def __str__(self):
+            return self.full_name
+       
