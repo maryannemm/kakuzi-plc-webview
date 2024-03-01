@@ -30,6 +30,16 @@
                     Profile Settings
                 </a>
             </li>
+            <hr>
+            {% if request.user.verified %}
+            <li class="nav-item">
+                <a class="nav-link ml-3" href="{% url 'core:feedback' request.user.username %}">
+                    <span data-feather="settings"></span>
+                    Feedback
+                </a>
+            </li>
+            {% endif %}
+            <hr>
         </ul>
     </div>
     <hr class="my-4"> <!-- Horizontal rule for separation -->

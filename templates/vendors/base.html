@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your Website{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom styles -->
+    {% include "core/importstatic.html" %}
+    <style>
+        body {
+            padding-top: 60px; /* Adjust the height of the top appbar */
+            padding-bottom: 60px; /* Adjust the height of the bottom navigation bar */
+        }
+        .navbar {
+            background-color: #1e703b !important; /* Darker shade of green */
+        }
+        .navbar-nav .nav-link {
+            color: #ffffff !important; /* Brighter text color */
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #5cb85c; /* Darker shade of green */
+            padding: 10px 0;
+        }
+        .footer a {
+            color: #ffffff; /* Brighter text color */
+        }
+    </style>
+</head>
+<body>
+    <!-- Appbar (Top Navigation Bar) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse center" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'vendors:index' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vendors:edit-profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vendors:catalogue' %}">Catalogue</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vendors:vendor-feedback' %}">Write Feedback</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Your content here -->
+        {% block content %}
+        {% endblock %}
+    </div>
+    
+    <!-- Footer (Bottom Navigation Bar) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <a href="{% url 'vendors:index' %}">Home</a>
+                </div>
+                <div class="col text-center">
+                    <a href="#">Dashboard</a>
+                </div>
+                <div class="col text-center">
+                    <a href="{% url 'vendors:edit-profile' %}">Profile Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends 'vendors/base.html' %}
+
+{% block title %}Vendor Dashboard{% endblock %}
+
+{% block content %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<div class="container mt-5">
+    <h1>{{ vendor.title }}'s Dashboard</h1>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                {% if vendor.image.url %}
+                <img src="{{ vendor.image.url }}" class="card-img-top" alt="Vendor Image">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ vendor.title }}</h5>
+                    <p class="card-text">{{ vendor.description }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Username: {{ vendor.username }}</li>
+                    <li class="list-group-item">Email: {{ vendor.email }}</li>
+                    <li class="list-group-item">Title: {{ vendor.title }}</li>
+                    <li class="list-group-item">Vendor Address: {{ vendor.vendor_address }}</li>
+                    <li class="list-group-item">City: {{ vendor.city }}</li>
+                    {% if vendor.verified %}
+                    <li class="list-group-item">Verification status: Verified</li>
+                    {% else %}
+                    <li class="list-group-item">Verification status: Not Verified</li>
+                    {% endif %}
+                    <li class="list-group-item">Business Email: {{ vendor.business_email }}</li>
+                </ul>
+                <div class="card-body">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

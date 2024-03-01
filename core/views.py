@@ -21,19 +21,27 @@ from django.utils import timezone
 from django.http import request
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
-from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm, EditCustomerProfileForm
+from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm, EditCustomerProfileForm, CustomerFeedbackForm
 from django.urls import reverse_lazy
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs
+from .models import Category, Product, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs, Feedback
+from userauths.models import VendorUser
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from userauths.models import Profile
+from userauths.models import CustomerUserRole
 
 
 
 
 # Create your views here.
 class HomeTemplateView(TemplateView):
-    template_name = "customer_pages/index.html"    
+    template_name = "customer_pages/index.html"
+    model=Feedback
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        feedbacks=Feedback.objects.all()
+        context["feedbacks"] = feedbacks
+        return context
+        
 
 class ShopListView(ListView):
     template_name = 'customer_pages/shop.html'
@@ -61,23 +69,23 @@ class CategoryListView(ListView):
         return context
     
 class SupplierListView(LoginRequiredMixin, ListView):
-    model=Supplier
+    model=VendorUser
     template_name='stock_pages/vendor_list.html'
     paginate_by=10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["vendors"] = Supplier.objects.all()
+        context["vendors"] = VendorUser.objects.all()
         return context
     
 class SingleSupplierDetailView(LoginRequiredMixin, DetailView):
-    model=Supplier
+    model=VendorUser
     template_name=  'stock_pages/vendor-detail.html '
     context_object_name = 'vendor'
 
     def get_object(self, queryset=None):
         # Use get_object_or_404 to get the Supplier based on vid
-        return get_object_or_404(Supplier, vid=self.kwargs['vid'])
+        return get_object_or_404(VendorUser, vid=self.kwargs['vid'])
 
 class SingleProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
@@ -139,7 +147,7 @@ class AddReview(CreateView):
         product = get_object_or_404(Product, pid=pid)
 
         # Check if the user has already reviewed
-        if ProductReview.objects.filter(product=product, user=self.request.user).exists():
+        if ProductReview.objects.filter(product=product, user=self.request.user.customeruserrole).exists():
             messages.warning(self.request, 'You already reviewed this product.', extra_tags='custom-alert-danger')
             product.user_reviewed = True
             return redirect('core:product-detail', pid=pid)
@@ -147,7 +155,7 @@ class AddReview(CreateView):
             product.user_reviewed = False
 
         form.instance.product = product
-        form.instance.user = self.request.user
+        form.instance.user = self.request.user.customeruserrole
 
         response = super().form_valid(form)
 
@@ -444,7 +452,7 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
                 shipping_company = ShippingCompany.objects.get(company_name=shipping_company_name)
             except ShippingCompany.DoesNotExist:
                 shipping_company = form_shipping.save(commit=False)
-                shipping_company.added_by = request.user
+                shipping_company.added_by = self.request.user.customeruserrole,
                 shipping_company.save()
 
             return redirect(request.path_info)
@@ -460,17 +468,19 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
         })
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
         request = self.request
         # Check if the cart order exists in the session
         if 'cart_order' in request.session:
             cart_order = request.session['cart_order']
         else:
-            return JsonResponse({'error': 'Cart not found'}, status=400)
+            context['error'] = 'Cart not found'
+            return context
         # Access the request object using self.request
         
         checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
         order=CartOrder.objects.create(
-            user=request.user,
+            user=request.user.customeruserrole, 
             price=checkout_amount,
 
         )
@@ -500,8 +510,6 @@ class CheckoutTemplateView(LoginRequiredMixin, TemplateView):
         form = PayPalPaymentsForm(initial=paypal_dict)
         
         
-
-        context = super().get_context_data(**kwargs)
         checkout_amount = sum(float(item['price']) * item['quantity'] for item in cart_order['items'])
         delivery=200
         final=checkout_amount+delivery
@@ -587,11 +595,11 @@ class PaymentErrorView(View):
     
 class CustomerDashboardTemplateView(LoginRequiredMixin, TemplateView):
     template_name='customer_pages/customer_dasboard.html'
-    Model= Profile
+    Model= CustomerUserRole
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        customer_profile=get_object_or_404(Profile, user=self.request.user)
+        customer_profile=get_object_or_404(self.Model, email=self.request.user.email)
         context["profile"] = customer_profile
         return context
 
@@ -600,7 +608,7 @@ class CustomerOrdersListView(LoginRequiredMixin, ListView):
     context_object_name = 'orders'
 
     def get_queryset(self):
-        return CartOrder.objects.filter(user=self.request.user).order_by('-order_date')
+        return CartOrder.objects.filter(user=self.request.user.customeruserrole).order_by('-order_date')
 
 class CustomerOrderDetailView(LoginRequiredMixin, DetailView):
     template_name='customer_pages/customer_order_detail.html'
@@ -680,7 +688,6 @@ class CustomerCreatetAddressUpdateView(LoginRequiredMixin, FormView):
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
             address=form.cleaned_data['address'],
-            status=form.cleaned_data['status'],
             phone=form.cleaned_data['phone'],
             city=form.cleaned_data['city'],
             county=form.cleaned_data['county'],
@@ -698,18 +705,17 @@ class CustomerCreatetAddressUpdateView(LoginRequiredMixin, FormView):
 class AddWishlistView(LoginRequiredMixin ,View):
     def post(self, request):
         if request.method == 'POST':
-            user= self.request.user
             product_id=request.POST.get('id')
 
             if product_id:
                 try:
                     product=Product.objects.get(id=product_id)
-                    if WishList.objects.filter(product=product, user=request.user).exists():
+                    if WishList.objects.filter(product=product, user=self.request.user.customeruserrole,).exists():
                         return JsonResponse({'success': False, 'message': 'Product already exists in wishlist.'})
                     else:
                         wishlist = WishList.objects.create(
                             product=product,
-                            user=request.user
+                            user=self.request.user.customeruserrole,
                         )
                         return JsonResponse({'success': True})
                 except Product.DoesNotExist:
@@ -760,7 +766,7 @@ class EditCustomerProfileView(FormView):
 
     def form_valid(self, form):
         user=self.request.user
-        profile=get_object_or_404(Profile, user=user)
+        profile=get_object_or_404(CustomerUserRole, email=self.request.user.email)
 
         profile.image=form.cleaned_data['image']
         profile.full_name=form.cleaned_data['full_name']
@@ -771,6 +777,23 @@ class EditCustomerProfileView(FormView):
         return super().form_valid(form)
     def get_success_url(self):
          return reverse_lazy('core:customer-dashboard' , kwargs={'username': self.request.user.username})
-    
+class CustomerFeedbackFormView(LoginRequiredMixin, FormView):
+    template_name='customer_pages/feedback.html'
+    form_class=CustomerFeedbackForm
+    model=Feedback
 
-
+    def form_valid(self, form):
+        if self.request.user.verified:
+            user=self.request.user
+            feedback=Feedback.objects.create(
+                user=user,
+                message=form.cleaned_data['message']
+            )
+            messages.success(self.request, 'Feedback submitted successfully.')
+            return super().form_valid(form)
+        else :
+            messages.error(self.request, 'You need to be a verified user to submit feedback.')
+            return redirect('core:home')
+    def get_success_url(self) -> str:
+        return reverse_lazy('core:index')
+       

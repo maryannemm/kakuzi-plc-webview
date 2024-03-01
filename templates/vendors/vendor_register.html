@@ -1,0 +1,54 @@
+<!-- template.html -->
+
+{% load static %}
+{% include "core/importstatic.html" %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Other head elements go here -->
+</head>
+
+<body>
+  {% if messages %}
+     {% for message in messages %}
+         <div class="text-center alert alert-{{ message.tags }}">
+             {{ message|safe }}
+         </div>
+     {% endfor %}
+ {% endif %}
+
+  {% block content%}
+
+  <div class="center">
+    <form method="POST" class="card" action="">
+      {% csrf_token %}
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}" {% endif %}
+        >{{ message }}</li>
+          {% endfor %}
+      </ul>
+      {% endif %}
+      {% if form.errors %}
+      <div class="error-message">
+        <strong>Error:</strong> Please fix the error(s) below
+        <p>{{form.errors}}</p>
+      </div>
+      {% endif %}
+      {{form.as_p}}
+      <button type="submit" class="btn btn-primary full-width">Register</button>
+      <hr>
+      <p class="text-center">Already have an account?<a href="{% url 'userauths:login' %}">Login here</a></p>
+
+    </form>
+  </div>
+  {% endblock content%}
+
+</body>
+
+</html>

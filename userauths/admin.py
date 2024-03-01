@@ -1,13 +1,20 @@
 from django.contrib import admin
-from userauths.models import User, Subscribers, Profile
+from userauths.models import User, Subscribers, CustomerUserRole,FinanceUserRole, StockUserRole, VendorUser
 
 class AdminUsers(admin.ModelAdmin):
     list_display=['username', 'email', 'bio']
 
 # Register your models here.
-admin.site.register(User, AdminUsers)
-admin.site.register(Subscribers)
 
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display=['image','full_name', 'verified', 'bio']
+admin.site.register(Subscribers)
+admin.site.register(FinanceUserRole)
+admin.site.register(StockUserRole)
+admin.site.register(CustomerUserRole)
+
+
+@admin.register(User)
+class userAdmin(admin.ModelAdmin):
+    list_display=['username', 'email','bio','verified' ]
+@admin.register(VendorUser)
+class VendorUserAdmin(admin.ModelAdmin):
+    list_display=['title','vendor_address','business_email', 'description']

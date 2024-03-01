@@ -1,9 +1,6 @@
 from django.urls import path, include
-from core.views import HomeTemplateView, PriceRangeFilterView, ShopListView, CategoryListView, SupplierListView, SingleSupplierDetailView,SingleProductDetailView, TagListView,AddReview,SearchView, CategoriesPriceRangeFilterView, AddToCartView, CartListView, CheckoutTemplateView
-from core.views import DeleteFromCartView, UpdateCartView, PayPalSuccessView, PayPalCancelView, PayPalErrorView, CustomerDashboardTemplateView, CustomerOrdersListView, CustomerOrderDetailView, CustomerAddressTemplateView
+from core.views import *
 from django.views.decorators.csrf import csrf_exempt
-from core.views import CustomerEditAddressUpdateView, CustomerAddressDeleteView, CustomerDefaultAddressUpdateView, CustomerCreatetAddressUpdateView, AddWishlistView, WishListListView, WishlistItemDeleteView
-from core.views import AboutUsTemplateView, ContactUsView, EditCustomerProfileView
 from paypal.standard.ipn import views as paypal_ipn_views
 app_name= 'core'
 urlpatterns = [
@@ -64,6 +61,9 @@ urlpatterns = [
    
    #customer profile
    path('<str:username>/edit-profile/', EditCustomerProfileView.as_view(), name='edit-profile'),
+
+   #feedback
+    path('<str:username>/feedback', CustomerFeedbackFormView.as_view(),name='feedback'),
 
     ##### 
     path("vendor", SupplierListView.as_view(), name='vendor-list'),  

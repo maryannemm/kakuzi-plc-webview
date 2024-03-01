@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Supplier, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs
+from .models import Category, Product, ProductImages, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs,Feedback
 
 # Register your models here.
 
@@ -7,9 +7,6 @@ from .models import Category, Supplier, Product, ProductImages, CartOrder, CartO
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'category_image')
 
-@admin.register(Supplier)
-class SupplierAdmin(admin.ModelAdmin):
-    list_display = ('title', 'vendor_image')
 
 
 
@@ -48,6 +45,11 @@ class AddressAdmin(admin.ModelAdmin):
 @admin.register(ShippingCompany)
 class ShippingCompanyAdmin(admin.ModelAdmin):
     list_display=('company_name','added_by','date')
+
 @admin.register(ContactUs)
 class ContactUsAdmin(admin.ModelAdmin):
     list_display=['name','subject','date','message']
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display=['user','message']

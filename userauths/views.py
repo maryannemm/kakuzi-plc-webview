@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.edit import CreateView
 from .forms import RegistrationForm, LoginForm, SubscribeForm
-from .models import Subscribers, User
+from .models import FinanceUserRole, StockUserRole, Subscribers, CustomerUserRole, User, VendorUser
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib import messages
@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 class RegisterView(SuccessMessageMixin, CreateView):
     template_name = 'userauths/sign-up.html'
-    model = User
+    model = CustomerUserRole
     form_class = RegistrationForm
     success_message = ' You have successfully registered.'
     redirect_authenticated_user=True
@@ -23,22 +23,24 @@ class RegisterView(SuccessMessageMixin, CreateView):
 
 
     def form_valid(self, form):
-        # Your logic for handling a valid form submission goes here
         response = super().form_valid(form)
-
-        # Access the username and email from the form
+        
+        # Authenticate the user using email and password
+        user = self.object  # Newly created user instance
         username = form.cleaned_data.get('username')
         email = form.cleaned_data.get('email')
+
+        # Set the role of the user to "CUSTOMER"
+        self.object.role = self.object.Role.CUSTOMER  # Adjust as per your model structure
+        self.object.save()
 
         # Authenticate the user using email and password
         user = authenticate(self.request, username=email, password=form.cleaned_data.get('password1'))
 
+
         # Log in the authenticated user
         if user is not None:
             login(self.request, user)
-
-        # Set the success message with the username
-        self.success_message = self.success_message.format(username=username)
 
         return response
 class MyLoginView(SuccessMessageMixin,LoginView):
@@ -48,14 +50,30 @@ class MyLoginView(SuccessMessageMixin,LoginView):
     success_message='Logged in Successfully!'
 
     def get_success_url(self):
-        return reverse_lazy('core:index')
+        user = self.request.user
+        if hasattr(user, 'customeruserrole'):
+            return reverse_lazy('core:index')
+        elif hasattr(user, 'vendoruser'):
+            return reverse_lazy('vendors:index')
+        elif hasattr(user, 'financeuserrole'):
+            return reverse_lazy('finance_dashboard')
+        elif hasattr(user, 'stockuserrole'):
+            return reverse_lazy('stock_dashboard')
+        elif user.is_superuser:
+            return reverse_lazy('admin_dashboard')
+        else:
+            return reverse_lazy('core:index') 
+
 
     def form_invalid(self, form):
         messages.error(self.request, 'Invalid username or password')
         return super().form_invalid(form)
     
 class MyLogoutView(LoginRequiredMixin, LogoutView):
-    login_url = reverse_lazy('core:index')
+
+    def get_success_url(self):
+        # Redirect the user to the desired URL after logout
+        return reverse_lazy('core:index')
     
     def logout(self, request):
         messages.success(request, 'You have successfully logged out')

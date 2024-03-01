@@ -1,6 +1,6 @@
 from django import forms
-from core.models import ProductReview, Address, ShippingCompany, ContactUs
-from userauths.models import Profile
+from core.models import ProductReview, Address, ShippingCompany, ContactUs, Feedback
+from userauths.models import CustomerUserRole
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import RegexValidator
  
@@ -62,6 +62,16 @@ class EditCustomerProfileForm(forms.ModelForm):
     bio=forms.CharField(widget=forms.Textarea({'class':'form-group','placeholder':'Enter Bio '}))
 
     class Meta:
-        model=Profile
+        model=CustomerUserRole
         fields=['image', 'full_name', 'bio']
         
+    def __init__(self, *args, **kwargs):
+        super(EditCustomerProfileForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.label = '' 
+            
+class CustomerFeedbackForm(forms.ModelForm):
+    message=forms.CharField(widget=forms.TextInput({'placeholder':'Enter your feedback'}))
+    class Meta:
+        model=Feedback
+        fields=['message']

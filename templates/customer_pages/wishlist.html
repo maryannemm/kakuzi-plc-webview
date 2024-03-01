@@ -13,11 +13,12 @@
                     <table class="table">
                         <thead class="thead-primary">
                             <tr class="text-center">
-                                <th>&nbsp;</th>
+                                <th>image</th>
+                                
                                 <th>Product</th>
-                                <th>&nbsp;</th>
+                                
                                 <th>Price</th>
-                                <th>Total</th>
+                                <th>Action</th>
                                 <th>&nbsp;</th> <!-- Add this column for the delete button -->
                             </tr>
                         </thead>
@@ -31,10 +32,9 @@
                                     <p>{{ wishlist_item.product.description|safe }}</p>
                                 </td>
 
-                                <td class="price">$ {{ wishlist_item.product.price }}</td>
+                                <td class="price">Ksh {{ wishlist_item.product.price }}</td>
 
-                                <td class="total">$ {{ wishlist_item.product.price }}</td>
-
+                                
                                 <td class="product-remove">
                                     <form method="post" action="{% url 'core:wishlist-delete' wishlist_item.product.pid %}">
 										{% csrf_token %}

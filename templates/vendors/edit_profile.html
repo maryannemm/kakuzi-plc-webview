@@ -1,0 +1,35 @@
+{% extends 'vendors/base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.image }}
+        </div>
+        <div class="form-group">
+            {{ form.bio }}
+        </div>
+        <div class="form-group">
+            {{ form.phone }}
+        </div>
+        <div class="form-group">
+            {{ form.description }}
+        </div>
+        <div class="form-group">
+            {{ form.vendor_address }}
+        </div>
+        <div class="form-group">
+            {{ form.city }}
+        </div>
+        <div class="form-group">
+            {{ form.business_email }}
+        </div>
+        
+        
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+{% endblock %}
