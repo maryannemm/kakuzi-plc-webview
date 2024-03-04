@@ -7,16 +7,27 @@
     <!-- Importing static files -->
     {% include 'core/importstatic.html' %}
     <!-- Additional CSS or meta tags if needed -->
-    {% block extra_head %}{% endblock %}
+    {% block extra_head %}
+    <style>
+        /* Custom CSS for navbar */
+        .navbar {
+            background-color: #343a40; /* Dark background color */
+            color: white; /* White text */
+        }
+        .navbar-nav .nav-link {
+            color: white !important; /* White text for navbar links */
+        }
+    </style>
+    {% endblock %}
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top " > <!-- Added 'fixed-top' class for fixed position -->
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse " id="navbarSupportedContent" style=" background-color:green;">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active">
                         <a class="nav-link" href="{% url 'stock:dashboard' %}">Dashboard</a>
@@ -31,10 +42,10 @@
                         <a class="nav-link" href="{% url 'stock:category-list' %}">Categories</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#settings">Settings</a>
+                        <a class="nav-link" href="{% url 'stock:vendor-list' %}">Farmers</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'stock:vendor-list' %}">Farmers</a>
+                        <a class="nav-link" href="{% url 'userauths:logout' %}">Logout</a>
                     </li>
                 </ul>
             </div>

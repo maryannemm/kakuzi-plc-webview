@@ -9,13 +9,13 @@
                 <div class="categories p-4 bg-light border-radius-8">
                     <h3 class="mb-3 text-dark">Categories</h3>
                     {% if categories %}
-                        <ul class="list-unstyled">
+                        <ul class="list-group">
                             {% for cat in categories %}
-                                <li>
+                                <li class="list-group-item">
                                     <div class="card mb-3">
                                         <div class="row g-0">
                                             <div class="col-md-4">
-                                                <img src="{{ cat.image.url }}" class="img-fluid rounded-start" alt="{{ cat.title }}">
+                                                <img src="{{ cat.image.url }}" class="img-fluid rounded-start fixed-image-size" alt="{{ cat.title }}">
                                             </div>
                                             <div class="col-md-8">
                                                 <div class="card-body">
@@ -30,6 +30,8 @@
                                 </li>
                             {% endfor %}
                         </ul>
+                    {% else %}
+                        <p>No categories available</p>
                     {% endif %}
                 </div>
             </div>
@@ -41,8 +43,7 @@
     {% include 'core/pagination.html' %}
     <style>
         .fixed-image-size {
-            width: 100%;
-            height: 250px;
+            height: 150px; /* Reduced height for better alignment */
             object-fit: cover;
         }
     </style>

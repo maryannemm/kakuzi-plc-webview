@@ -44,7 +44,7 @@ class VendorUser(User):
         verbose_name_plural = 'Farmers'
 
 class FinanceUserRole(User):
-    #has passowrd
+    #has password
     def save(self, *args, **kwargs):
         if self.password:
             self.password = make_password(self.password)

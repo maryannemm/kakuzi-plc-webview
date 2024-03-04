@@ -16,6 +16,7 @@ STATUS_CHOICES = (
     ("pending", "Pending"),
     ("shipped", "Shipped"),
     ("completed", "Completed"),
+    ("delivered", "Delivered"),
   
 )
 
@@ -23,7 +24,6 @@ STATUS = (
     ("draft", "Draft"),
     ("disabled", "Disabled"),
     ("in_review", "In Review"),
-    ("delivered", "Delivered"),
     ("published", "Published"),
 )
 RATINGS = (
