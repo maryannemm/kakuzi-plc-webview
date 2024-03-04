@@ -1,0 +1,49 @@
+{% extends 'stock_pages/base.html' %}
+
+{% block title %}Kakuzi plc - {{ category.title }}{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="categories p-4 bg-light border-radius-8">
+                    <h3 class="mb-3 text-dark">Categories</h3>
+                    {% if categories %}
+                        <ul class="list-unstyled">
+                            {% for cat in categories %}
+                                <li>
+                                    <div class="card mb-3">
+                                        <div class="row g-0">
+                                            <div class="col-md-4">
+                                                <img src="{{ cat.image.url }}" class="img-fluid rounded-start" alt="{{ cat.title }}">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ cat.title|title }}</h5>
+                                                    {% if request.user.is_authenticated and request.user.stockuserrole %}
+                                                        <a href="{% url 'stock:update-category' cat.cid %}" class="btn btn-sm btn-primary">Edit</a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container text-center mt-4">
+        <a href="{% url 'stock:create-category' %}" class="btn btn-success">Create Category</a>
+    </div>
+    {% include 'core/pagination.html' %}
+    <style>
+        .fixed-image-size {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+    </style>
+{% endblock %}

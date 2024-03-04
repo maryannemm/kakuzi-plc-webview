@@ -64,10 +64,6 @@ urlpatterns = [
 
    #feedback
     path('<str:username>/feedback', CustomerFeedbackFormView.as_view(),name='feedback'),
-
-    ##### 
-    path("vendor", SupplierListView.as_view(), name='vendor-list'),  
-    path("vendor-detail/<str:vid>", SingleSupplierDetailView.as_view(), name='vendor-detail'),  
     
 ]  
 

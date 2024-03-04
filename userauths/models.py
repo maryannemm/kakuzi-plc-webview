@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from phonenumber_field.modelfields import PhoneNumberField
-from shortuuidfield import ShortUUIDField 
+from django.contrib.auth.models import AbstractUser 
+from django.contrib.auth.hashers import make_password
 
 def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.user.id, filename)  
@@ -12,7 +11,7 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=60, default=None, null=True)
     verified = models.BooleanField(default=False)
     phone = models.CharField(max_length=10, null=True, blank=True, default=None)
-    image = models.ImageField(upload_to='image', default=None)
+    image = models.ImageField(upload_to='image', default='https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -45,13 +44,22 @@ class VendorUser(User):
         verbose_name_plural = 'Farmers'
 
 class FinanceUserRole(User):
-    pass
+    #has passowrd
+    def save(self, *args, **kwargs):
+        if self.password:
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Financial Managers'
 
 class StockUserRole(User):
-    pass
+
+    #hash the password
+    def save(self, *args, **kwargs):
+        if self.password:
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Stock Managers'

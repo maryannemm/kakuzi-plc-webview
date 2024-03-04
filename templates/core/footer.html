@@ -16,7 +16,7 @@
             <a class="nav-link" href="{% if request.user.is_authenticated %}{% url 'core:cart' request.user.username %}{% else %}{% url 'core:index' %}{% endif %}"style='color: white;'>Cart</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% if request.user.is_authenticated %}{% url 'core:customer-dashboard' request.user.username %}{% else %}{% url 'core:index' %}{% endif %}"style='color: white;'>Cart</a>
+            <a class="nav-link" href="{% if request.user.is_authenticated %}{% url 'core:customer-dashboard' request.user.username %}{% else %}{% url 'core:index' %}{% endif %}"style='color: white;'>Dashboard</a>
           </li>
         </ul>
       </div>

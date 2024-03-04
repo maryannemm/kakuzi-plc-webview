@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'paypal.standard.ipn',
     'ckeditor',
+    'bootstrap4',
 
     # Custom Apps
     'core',

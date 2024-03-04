@@ -47,13 +47,13 @@
                     <a class="nav-link" href="#">Dashboard</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendors:edit-profile' %}">Profile</a>
+                    <a class="nav-link" href="{% url 'vendors:edit-profile' %}">Edit-Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'vendors:catalogue' %}">Catalogue</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'vendors:vendor-feedback' %}">Write Feedback</a>
+                    <a class="nav-link" href="{% url 'vendors:vendor-feedback' %}">Write-Feedback</a>
                 </li>
             </ul>
         </div>
@@ -72,11 +72,12 @@
                 <div class="col text-center">
                     <a href="{% url 'vendors:index' %}">Home</a>
                 </div>
-                <div class="col text-center">
-                    <a href="#">Dashboard</a>
-                </div>
+                
                 <div class="col text-center">
                     <a href="{% url 'vendors:edit-profile' %}">Profile Settings</a>
+                </div>
+                <div class="col text-center">
+                    <a href="{% url 'userauths:logout' %}">Logout</a>
                 </div>
             </div>
         </div>

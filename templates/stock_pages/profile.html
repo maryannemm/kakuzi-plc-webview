@@ -1,0 +1,39 @@
+{% extends 'stock_pages/base.html' %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="display-4 mb-4">{{ stock_manager.full_name }} Profile</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if stock_manager.image %}
+                        <img src="{{ stock_manager.image.url }}" class="img-fluid mb-3" alt="Profile Image">
+                    {% else %}
+                        <div class="text-center mb-3">
+                            <img src="https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1" class="img-fluid" alt="Placeholder Image">
+                        </div>
+                    {% endif %}
+                    <p><strong>Username:</strong> {{ stock_manager.username }}</p>
+                    <p><strong>Email:</strong> {{ stock_manager.email }}</p>
+                    <p><strong>Full Name:</strong> {{ stock_manager.full_name }}</p>
+                    <p><strong>Bio:</strong> {{ stock_manager.bio }}</p>
+                    <p><strong>Phone:</strong> {{ stock_manager.phone }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'stock:dashboard' %}" class="btn btn-primary">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

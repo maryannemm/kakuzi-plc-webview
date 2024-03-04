@@ -1,0 +1,11 @@
+<!-- vendor_user_create.html -->
+{% extends 'stock_pages/base.html' %}
+
+{% block content %}
+  <h2 class= 'text-center'>Create Category</h2>
+  <form method="post" enctype='multipart/form-data'>
+    {% csrf_token %}
+    {{ form.as_div }}
+    <button type="submit">Submit</button>
+  </form>
+{% endblock %}

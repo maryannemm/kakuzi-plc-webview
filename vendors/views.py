@@ -57,6 +57,8 @@ class CatalogueListView(ListView):
 class EditProfileFormView(FormView):
     template_name='vendors/edit_profile.html'
     form_class=EditProfileForm
+    success_message='You have updated profile successfully'
+    success_url=reverse_lazy('vendors:index')
 
     def form_valid(self, form):
         profile=get_object_or_404(VendorUser, email=self.request.user.email)
@@ -70,10 +72,11 @@ class EditProfileFormView(FormView):
         profile.business_email=form.cleaned_data['business_email']
 
         profile.save()
+        messages.success(self.request, self.success_message)
         return super().form_valid(form)
     
     def get_success_url(self) -> str:
-        return reverse_lazy('vendors:index')
+        return self.success_url
     
 class VendorFeedbackFormView(LoginRequiredMixin, FormView):
     template_name='vendors/vendor_feedback.html'

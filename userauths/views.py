@@ -56,9 +56,9 @@ class MyLoginView(SuccessMessageMixin,LoginView):
         elif hasattr(user, 'vendoruser'):
             return reverse_lazy('vendors:index')
         elif hasattr(user, 'financeuserrole'):
-            return reverse_lazy('finance_dashboard')
+            return reverse_lazy('finance:dashboard')
         elif hasattr(user, 'stockuserrole'):
-            return reverse_lazy('stock_dashboard')
+            return reverse_lazy('stock:dashboard')
         elif user.is_superuser:
             return reverse_lazy('admin_dashboard')
         else:

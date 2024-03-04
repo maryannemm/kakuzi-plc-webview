@@ -7,7 +7,7 @@
             <h1 class="text-center mb-4">Customer Feedback</h1>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {{ form.as_div }}
                 <button type="submit" class="btn btn-primary btn-block">Submit Feedback</button>
             </form>
         </div>

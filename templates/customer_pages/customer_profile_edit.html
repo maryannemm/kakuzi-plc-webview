@@ -16,16 +16,12 @@
               {% include "core/dashboard-nav.html" %}
               <!-- Personal Information -->
               <div class="col-md-9">
-                <div class="card" style='width:105%'>
-                  <div class="card-body" style='width:-50%'>
-                    <h5 class="card-title text-center">Edit Personal Information</h5>
-                    <form method="POST" enctype="multipart/form-data" >
-                        {% csrf_token %}
-                        {{form.as_div}}
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                  </div>
-                </div>
+                <h5 class="card-title text-center">Edit Personal Information</h5>
+                <form method="POST" enctype="multipart/form-data" >
+                    {% csrf_token %}
+                    {{form.as_div}}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
               </div>
             </div>
           </div>

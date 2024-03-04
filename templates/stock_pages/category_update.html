@@ -1,0 +1,11 @@
+{% extends 'stock_pages/base.html' %}
+{% block content %}
+  <div class="container">
+    <h2>Edit Category</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <button type="submit" class="btn btn-primary">Update Category</button>
+    </form>
+  </div>
+{% endblock %}

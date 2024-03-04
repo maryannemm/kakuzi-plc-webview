@@ -1,0 +1,82 @@
+{% extends 'stock_pages/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+    <div class="container-fluid">
+        <h2 class="mt-4">Stock Dashboard</h2>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        Latest Products
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for product in latest_products %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    {% if stock_manager.image %}
+                                        <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.title }}">
+                                    {% else %}
+                                        <div class="text-center mb-3">
+                                            <img src="https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1" class="img-fluid" alt="Placeholder Image">
+                                        </div>
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ product.title }}</h5>
+                                        <p class="card-text">{{ product.description|safe }}</p>
+                                        <p class="card-text">Price: {{ product.price }}</p>
+                                        <!-- Add more details as needed -->
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p>No products available.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        Unapproved Farmers
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for vendor in vendors_unapproved %}
+                            <a href="#" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ vendor.title }}</h5>
+                                </div>
+                                <p class="mb-1">{{ vendor.description|safe }}</p>
+                            </a>
+                            {% empty %}
+                            <p>No unapproved farmers.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        Feedback
+                    </div>
+                    {% for feedback in feedbacks %}
+                    <div class="card-body">
+                        <!-- Add feedback message here -->
+                        <p>{{ feedback.message }}</p>
+                        <p class="text-muted">- {{ feedback.user.username }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

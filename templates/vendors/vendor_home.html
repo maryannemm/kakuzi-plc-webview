@@ -17,7 +17,11 @@
         <div class="col-md-6">
             <div class="card">
                 {% if vendor.image.url %}
-                <img src="{{ vendor.image.url }}" class="card-img-top" alt="Vendor Image">
+                <img src="{{ vendor.image.url }}" class="card-img-top" alt="{{ vendor.title }}">
+                {% else %}
+                    <div class="text-center mb-3">
+                        <img src="https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1" class="img-fluid" alt="Placeholder Image">
+                    </div>
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ vendor.title }}</h5>

@@ -8,3 +8,5 @@ pip install django-crispy-forms
 pip install django-mathfilters
 pip install django-paypal
 pip install reportlab
+pip install django-bootstrap4
+

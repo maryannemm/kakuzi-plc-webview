@@ -1,32 +1,24 @@
-from datetime import datetime
 from typing import Any
-from urllib import request, response
 from django.db.models.base import Model as Model
-from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin 
 from taggit.models import Tag
-from django.db.models import Count,Avg,Q, Sum
+from django.db.models import Avg,Q
 from core.forms import ProductReviewForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.http import JsonResponse
-from django.http import HttpResponseBadRequest, HttpResponseRedirect,HttpResponse
+from django.http import  HttpResponseRedirect
 from django.utils import timezone
-from django.http import request
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 from .forms import CustomerAddressForm, ShippingCompanyForm, ContactUsForm, EditCustomerProfileForm, CustomerFeedbackForm
 from django.urls import reverse_lazy
 from .models import Category, Product, CartOrder, CartOrderItems, ProductReview, WishList, Address, ShippingCompany, ContactUs, Feedback
-from userauths.models import VendorUser
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from userauths.models import CustomerUserRole
 
 
@@ -42,7 +34,6 @@ class HomeTemplateView(TemplateView):
         context["feedbacks"] = feedbacks
         return context
         
-
 class ShopListView(ListView):
     template_name = 'customer_pages/shop.html'
     model=Product
@@ -67,25 +58,6 @@ class CategoryListView(ListView):
         context['category'] = category
         context['products'] = Product.objects.filter(product_status='published', category=category).order_by('-id')
         return context
-    
-class SupplierListView(LoginRequiredMixin, ListView):
-    model=VendorUser
-    template_name='stock_pages/vendor_list.html'
-    paginate_by=10
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["vendors"] = VendorUser.objects.all()
-        return context
-    
-class SingleSupplierDetailView(LoginRequiredMixin, DetailView):
-    model=VendorUser
-    template_name=  'stock_pages/vendor-detail.html '
-    context_object_name = 'vendor'
-
-    def get_object(self, queryset=None):
-        # Use get_object_or_404 to get the Supplier based on vid
-        return get_object_or_404(VendorUser, vid=self.kwargs['vid'])
 
 class SingleProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
@@ -777,6 +749,7 @@ class EditCustomerProfileView(FormView):
         return super().form_valid(form)
     def get_success_url(self):
          return reverse_lazy('core:customer-dashboard' , kwargs={'username': self.request.user.username})
+
 class CustomerFeedbackFormView(LoginRequiredMixin, FormView):
     template_name='customer_pages/feedback.html'
     form_class=CustomerFeedbackForm
