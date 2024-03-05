@@ -16,13 +16,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    class Role(models.TextChoices):
-        ADMIN = 'ADMIN', 'Admin'
-        CUSTOMER = 'CUSTOMER', 'Customer'
-        VENDOR = 'VENDOR', 'Farmer'
-        FINANCE = 'FINANCE', 'Finance'
-        STOCK = 'STOCK', 'Stock'
-
     def __str__(self):
         return self.username
 

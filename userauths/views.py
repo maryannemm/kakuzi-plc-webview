@@ -29,9 +29,6 @@ class RegisterView(SuccessMessageMixin, CreateView):
         user = self.object  # Newly created user instance
         username = form.cleaned_data.get('username')
         email = form.cleaned_data.get('email')
-
-        # Set the role of the user to "CUSTOMER"
-        self.object.role = self.object.Role.CUSTOMER  # Adjust as per your model structure
         self.object.save()
 
         # Authenticate the user using email and password

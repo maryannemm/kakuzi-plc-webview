@@ -30,19 +30,13 @@
             <div class="collapse navbar-collapse " id="navbarSupportedContent" style=" background-color:green;">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'stock:dashboard' %}">Dashboard</a>
+                        <a class="nav-link" href="{% url 'finance:dashboard' %}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'stock:profile' %}">Profile</a>
+                        <a class="nav-link" href="{% url 'finance:profile' %}">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'stock:product-list' %}">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'stock:category-list' %}">Categories</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'stock:vendor-list' %}">Farmers</a>
+                        <a class="nav-link" href="{% url 'finance:orders' %}">orders</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'userauths:logout' %}">Logout</a>
@@ -53,7 +47,6 @@
     </nav>
     <div  class='mb-5'>
     </div>
-
 
     <!-- Main Content -->
     <div class="container-fluid">

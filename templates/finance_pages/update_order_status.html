@@ -1,0 +1,19 @@
+{% extends 'finance_pages/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class='text-center'>Update Order Status</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_order_status">Order Status:</label>
+            {{ form.order_status }}
+        </div>
+        <div class="form-group">
+            <label for="id_payment_status">Payment Status:</label>
+            {{ form.payment_status }}
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+{% endblock %}

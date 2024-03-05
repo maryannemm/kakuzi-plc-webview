@@ -1,0 +1,132 @@
+{% extends 'finance_pages/base.html' %}
+
+{% block content %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<div class="container-fluid">
+    <h2 class="mt-4 mx-auto">Orders</h2>
+    <!-- Section for pending payments -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-white">
+                    Pending Payments
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for order in pending_orders %}
+                        <li class="list-group-item">
+                            Customer: {{ order.user }}<br>
+                            Order ID: {{ order.id }}<br>
+                            Amount: {{ order.price }}<br>
+                            Order Date: {{ order.order_date }}<br>
+                            Order Status: Pending<br>
+                            {% if order.payment_status%}
+                            Payment Status: Paid
+                            {% else %}
+                            Payment Status: Not Paid
+                            {% endif %}
+                            <a href="{% url 'finance:update-order-status' order.id  %}" class="btn btn-primary btn-sm float-right">Update status</a>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No pending payments.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Section for completed payments -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    Completed Payments
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for order in completed_orders %}
+                        <li class="list-group-item">
+                            Customer: {{ order.user }}<br>
+                            Order ID: {{ order.id }}<br>
+                            Amount: {{ order.price }}<br>
+                            Order Date: {{ order.order_date }}<br>
+                            Status: Completed<br>
+                            {% if order.payment_status%}
+                            Payment Status: Paid<br>
+                            {% else %}
+                            Payment Status: Not Paid<br>
+                            {% endif %}
+                            <a href="{% url 'finance:update-order-status' order.id %}" class="btn btn-primary btn-sm float-right">Update status</a>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No completed payments.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Section for shipped orders -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    Shipped Orders
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for order in shipped_orders %}
+                        <li class="list-group-item">
+                            Customer: {{ order.user }}<br>
+                            Order ID: {{ order.id }}<br>
+                            Amount: {{ order.price }}<br>
+                            Order Date: {{ order.order_date }}<br>
+                            Status: Shipped<br>
+                            {% if order.payment_status%}
+                            Payment Status: Paid<br>
+                            {% else %}
+                            Payment Status: Not Paid<br>
+                            {% endif %}
+                            <a href="{% url 'finance:update-order-status' order.id %}" class="btn btn-primary btn-sm float-right">Update status</a>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No shipped orders.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Section for delivered orders -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    Delivered Orders
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for order in delivered_orders %}
+                        <li class="list-group-item">
+                            Customer: {{ order.user }}<br>
+                            Order ID: {{ order.id }}<br>
+                            Amount: {{ order.price }}<br>
+                            Date: {{ order.order_date }}<br>
+                            Status: Delivered<br>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No Delivered orders.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

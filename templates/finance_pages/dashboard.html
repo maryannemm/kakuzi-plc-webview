@@ -1,0 +1,110 @@
+{% extends 'finance_pages/base.html' %}
+
+{% block content %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+    <div class="container-fluid">
+        <h2 class="mt-4 mx-auto">Finance Dashboard</h2>
+        <!-- Section for pending payments -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning text-white">
+                        Pending Payments
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for order in pending_orders %}
+                            <li class="list-group-item">
+                                Customer:{{ order.user}}<br>
+                                Order ID: {{ order.id }}<br>
+                                Amount: {{ order.price }}<br>
+                                Order Date: {{ order.order_date }}<br>
+                                Status: Pending
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No pending payments.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section for completed payments -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        Completed Payments
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for order in completed_orders %}
+                            <li class="list-group-item">
+                                Customer:{{ order.user}}<br>
+                                Order ID: {{ order.id }}<br>
+                                Amount: {{ order.price }}<br>
+                                Order Date: {{ order.order_date }}<br>
+                                Status: Completed
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No completed payments.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section for shipped orders -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        Shipped Orders
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for order in shipped_orders %}
+                            <li class="list-group-item">
+                                Customer: {{ order.user}}<br>
+                                Order ID: {{ order.id }}<br>
+                                Amount: {{ order.price }}<br>
+                                Order Date: {{ order.order_date }}<br>
+                                Status: Shipped
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No shipped orders.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Feedback Section -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        Feedback
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for feedback in latest_feedback %}
+                            <li class="list-group-item">
+                                {{ feedback.message }} - {{ feedback.user.username }}
+                            </li>
+                            {% empty %}
+                            <li class="list-group-item">No feedback available.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
